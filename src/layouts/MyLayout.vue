@@ -35,6 +35,10 @@
           <q-item-side icon="school" />
           <q-item-main label="Main Site" sublabel="cadgroup2.jdrcomputers.co.uk" />
         </q-item>
+        <q-item @click.native="reload()">
+          <q-item-side icon="school" />
+          <q-item-main label="Reload" sublabel="Reload the page" />
+        </q-item>
       </q-list>
     </q-layout-drawer>
 
@@ -55,6 +59,14 @@ export default {
     }
   },
   methods: {
+    reload () {
+      this.$router.go()
+      this.$q.notify({
+        color: 'positive',
+        position: 'top',
+        message: 'Page Reloaded!'
+      })
+    },
     openURL
   }
 }

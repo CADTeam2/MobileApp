@@ -84,10 +84,10 @@ export default {
     },
     nextPage () {
       this.$router.push('/questions')
-      this.$q.notify({
+      this.$q.notify({ // Notification for simulated login
         color: 'positive',
-        position: 'top',
-        message: 'Questions Page Loaded'
+        position: 'bottom',
+        message: 'Pseudo login successful'
       })
     },
     dummyLogin () {

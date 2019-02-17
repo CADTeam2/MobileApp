@@ -1,73 +1,76 @@
 <template>
-  <q-page padding class="docs-input flex flex-center column justify-center">
-    <div style="width: 500px; max-width:90vw;">
-      <p>Questions</p>
-      <q-input
-        v-model="question"
-        type="textarea"
-        float-label="Enter Question"
-        @keydown.enter="dummySendQuestion()"
-      />
-      <q-btn
-        style="margin-top: 20px;"
-        icon="lock_open"
-        label="Send Question!"
-        @click="dummySendQuestion()"
-        />
-        <div>
-          <q-btn
-            style="margin-top: 20px;"
-            icon="lock_open"
-            label="Previous page"
-            @click="prevPage()"
-            />
-        </div>
-    </div>
-  </q-page>
+  <q-layout view="lHh Lpr lFf">
+    <q-layout-header>
+      <q-toolbar
+        color="primary"
+        :inverted="$q.theme === 'ios'"
+      >
+        <q-btn
+          flat
+          dense
+          round
+          @click="leftDrawerOpen = !leftDrawerOpen"
+          aria-label="Menu"
+        >
+          <q-icon name="menu" />
+        </q-btn>
+
+        <q-toolbar-title>
+          Question Submission
+        </q-toolbar-title>
+      </q-toolbar>
+    </q-layout-header>
+
+    <q-layout-drawer
+      v-model="leftDrawerOpen"
+      :content-class="$q.theme === 'mat' ? 'bg-grey-2' : null"
+    >
+      <q-list
+        no-border
+        link
+        inset-delimiter
+      >
+        <q-list-header>Useful Links</q-list-header>
+        <q-item @click.native="openURL('http://cadgroup2.jdrcomputers.co.uk')">
+          <q-item-side icon="cloud" />
+          <q-item-main label="Main Site" sublabel="cadgroup2.jdrcomputers.co.uk" />
+        </q-item>
+        <q-item @click.native="prevPage()"> <!-- Log out sidebar option only visible from questions page which needs login to view -->
+          <q-item-side icon="lock" />
+          <q-item-main label="Log Out" />
+        </q-item>
+      </q-list>
+    </q-layout-drawer>
+
+    <q-page-container>
+      <router-view />
+    </q-page-container>
+  </q-layout>
 </template>
 
-<style>
-</style>
-
 <script>
+import { openURL } from 'quasar'
+
 export default {
-  name: 'PageIndex',
+  name: 'Questions',
+  data () {
+    return {
+      leftDrawerOpen: this.$q.platform.is.desktop
+    }
+  },
   methods: {
-    loadData () {
-      this.$axios.get('http://numbersapi.com/random/trivia')
-        .then((response) => {
-          this.data = response.data
-          console.log(response.data)
-          this.$q.notify({
-            message: response.data,
-            color: 'info'
-          })
-        })
-        .catch(() => {
-          this.$q.notify({
-            color: 'negative',
-            position: 'top',
-            message: 'Loading failed',
-            icon: 'report_problem'
-          })
-        })
-    },
-    dummySendQuestion () {
-      this.$q.notify({
-        color: 'positive',
-        position: 'top',
-        message: 'Questions sent: ' + this.question
-      })
-    },
     prevPage () {
       this.$router.push('/')
       this.$q.notify({
         color: 'positive',
-        position: 'top',
-        message: 'Login Page Loaded'
+        position: 'bottom',
+        message: 'Sign out successful'
       })
-    }
+    },
+    openURL
   }
 }
-
 </script>
+
+<style>
+</style>

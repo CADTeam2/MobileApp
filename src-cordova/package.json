@@ -12,7 +12,8 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "axios": "^0.18.0"
+    "axios": "^0.18.0",
+    "cordova-android": "^7.1.4"
   },
   "devDependencies": {
     "@vue/eslint-config-standard": "^4.0.0",
@@ -35,5 +36,10 @@
   ],
   "resolutions": {
     "ajv": "6.8.1"
+  },
+  "cordova": {
+    "platforms": [
+      "android"
+    ]
   }
 }
