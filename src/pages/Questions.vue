@@ -1,18 +1,27 @@
 <template>
   <q-page padding class="docs-input flex flex-center column justify-center">
-    <div style="width: 500px; max-width:90vw;">
+    <div style="width: 500px; max-width:90vw;"> <!-- Width of input never exceeds 500px -->
       <q-input
         clearable
         v-model="question"
         type="textarea"
         float-label="Enter Question Here"
       />
+    </div>
+    <div>
       <q-btn
         style="margin-top: 20px;"
         icon-right="send"
         label="Send Question!"
         :loading="loading"
         @click="questionSubmit()"
+        />
+    </div>
+    <div>
+      <q-btn
+        style="margin-top: 20px;"
+        label="Back"
+        @click="back()"
         />
     </div>
   </q-page>
@@ -77,6 +86,9 @@ export default {
         position: 'bottom',
         message: 'Login Page Loaded'
       })
+    },
+    back () {
+      this.$router.back()
     }
   }
 }

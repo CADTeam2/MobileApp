@@ -7,14 +7,21 @@
         v-model="email"
         type="email"
         float-label="Username or email"
-        @keydown.enter="loadData()"
+        @keyup.enter="shiftFocus()"
       />
-      <q-input v-model="password" type="password" float-label="Password" />
+      <q-input
+      v-model="password"
+      ref="password"
+      type="password"
+      float-label="Password"
+      @keyup.enter="dummyLogin()"
+      />
+  </div>
       <q-btn
         style="margin-top: 20px;"
         icon="lock_open"
         label="Get number fact!"
-        @click="loadData"
+        @click="loadData()"
         />
         <div>
           <q-btn
@@ -32,7 +39,6 @@
             @click="dummyLogin()"
             />
         </div>
-    </div>
   </q-page>
 </template>
 
@@ -83,7 +89,7 @@ export default {
       }
     },
     nextPage () {
-      this.$router.push('/questions')
+      this.$router.push('/RoomSelect')
       this.$q.notify({ // Notification for simulated login
         color: 'positive',
         position: 'bottom',
@@ -96,6 +102,9 @@ export default {
         position: 'top',
         message: 'Email: ' + this.email + ' Password: ' + this.password
       })
+    },
+    shiftFocus () {
+      this.$refs.password.focus()
     }
   }
 }

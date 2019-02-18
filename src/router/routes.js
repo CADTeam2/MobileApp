@@ -11,7 +11,8 @@ const routes = [
     path: '/questions',
     component: () => import('layouts/Questions.vue'),
     children: [
-      { path: '', component: () => import('pages/Questions.vue') }
+      { path: '/asking', component: () => import('pages/Questions.vue') },
+      { path: '/RoomSelect', component: () => import('pages/RoomSelect.vue') }
     ]
   }
 ]
