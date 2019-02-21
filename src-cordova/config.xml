@@ -20,6 +20,9 @@
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
+        <preference name="DisallowOverscroll" value="true" />
     </platform>
+    <plugin name="cordova-plugin-keyboard" spec="^1.2.0" />
     <engine name="android" spec="^7.1.4" />
+    <engine name="ios" spec="latest" />
 </widget>

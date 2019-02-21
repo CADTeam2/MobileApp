@@ -13,7 +13,10 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "cordova-android": "^7.1.4"
+    "cordova-android": "^7.1.4",
+    "cordova-ios": "^5.0.0",
+    "cordova-plugin-keyboard": "^1.2.0",
+    "cordova-plugin-whitelist": "1"
   },
   "devDependencies": {
     "@vue/eslint-config-standard": "^4.0.0",
@@ -39,7 +42,12 @@
   },
   "cordova": {
     "platforms": [
-      "android"
-    ]
+      "android",
+      "ios"
+    ],
+    "plugins": {
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-keyboard": {}
+    }
   }
 }

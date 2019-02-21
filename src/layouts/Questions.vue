@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-layout-header>
+    <q-layout-header id="noSelect">
       <q-toolbar
         color="primary"
         :inverted="$q.theme === 'ios'"
@@ -16,7 +16,7 @@
         </q-btn>
 
         <q-toolbar-title>
-          Question Submission
+          {{ this.$route.params.roomName }}
         </q-toolbar-title>
       </q-toolbar>
     </q-layout-header>
@@ -73,4 +73,7 @@ export default {
 </script>
 
 <style>
+  #noSelect {
+    user-select: none
+  }
 </style>

@@ -11,7 +11,14 @@ const routes = [
     path: '/questions',
     component: () => import('layouts/Questions.vue'),
     children: [
-      { path: '/asking', component: () => import('pages/Questions.vue') },
+      { path: '/asking/:roomName', component: () => import('pages/Questions.vue') },
+      { path: '/asking', component: () => import('pages/Error404.vue') }
+    ]
+  },
+  {
+    path: '/roomselect',
+    component: () => import('layouts/RoomSelect.vue'),
+    children: [
       { path: '/RoomSelect', component: () => import('pages/RoomSelect.vue') }
     ]
   }

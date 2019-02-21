@@ -1,6 +1,6 @@
 <template>
-  <q-layout view="lHh Lpr lFf" id="noSelect">
-    <q-layout-header>
+  <q-layout view="lHh Lpr lFf">
+    <q-layout-header id="noSelect">
       <q-toolbar
         color="primary"
         :inverted="$q.theme === 'ios'"
@@ -16,7 +16,7 @@
         </q-btn>
 
         <q-toolbar-title>
-          Imbroglio Development
+          Room Selection
         </q-toolbar-title>
       </q-toolbar>
     </q-layout-header>
@@ -30,10 +30,14 @@
         link
         inset-delimiter
       >
-        <q-list-header>Just One Link</q-list-header>
+        <q-list-header>Useful Links</q-list-header>
         <q-item @click.native="openURL('http://cadgroup2.jdrcomputers.co.uk')">
-          <q-item-side icon="school" />
+          <q-item-side icon="cloud" />
           <q-item-main label="Main Site" sublabel="cadgroup2.jdrcomputers.co.uk" />
+        </q-item>
+        <q-item @click.native="prevPage()"> <!-- Log out sidebar option only visible from questions page which needs login to view -->
+          <q-item-side icon="lock" />
+          <q-item-main label="Log Out" />
         </q-item>
       </q-list>
     </q-layout-drawer>
@@ -48,19 +52,19 @@
 import { openURL } from 'quasar'
 
 export default {
-  name: 'MyLayout',
+  name: 'Questions',
   data () {
     return {
       leftDrawerOpen: this.$q.platform.is.desktop
     }
   },
   methods: {
-    reload () {
-      this.$router.go()
+    prevPage () {
+      this.$router.push('/')
       this.$q.notify({
         color: 'positive',
-        position: 'top',
-        message: 'Page Reloaded!'
+        position: 'bottom',
+        message: 'Sign out successful'
       })
     },
     openURL

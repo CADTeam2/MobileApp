@@ -1,6 +1,7 @@
 <template>
   <q-page padding class="docs-input flex flex-center column justify-center">
     <div style="width: 500px; max-width:90vw;"> <!-- Width of input never exceeds 500px -->
+      <!--<p id="rmID">Conference (room) name: {{ this.$route.params.roomName }}</p>-->
       <q-input
         clearable
         v-model="question"
@@ -20,8 +21,8 @@
     <div>
       <q-btn
         style="margin-top: 20px;"
-        label="Back"
-        @click="back()"
+        label="Change Room"
+        @click="toRoom()"
         />
     </div>
   </q-page>
@@ -38,6 +39,9 @@ export default {
       question: '',
       loading: false
     }
+  },
+  mounted: function () {
+    console.log('Page Loaded')
   },
   methods: {
     loadData () { // Method to call basic random number fact api and displays the response as notification and writes to console
@@ -59,14 +63,14 @@ export default {
           })
         })
     },
-    questionSubmit: function (event) {
+    questionSubmit: function () {
       if (this.question !== undefined && this.question !== '') { // Only allow existing questions, most fundamental verification
         this.loading = true
         setTimeout(() => { // Simulating a 1.5 second wait on a ficticious ajax call
           this.$q.notify({
             color: 'positive',
             position: 'bottom',
-            message: 'Question sent: ' + this.question // Displays question for testing beofre api is ready
+            message: 'Submission Successful' // Displays question for testing beofre api is ready
           })
           this.loading = false
           this.question = '' // Delete the sent question from the input
@@ -79,16 +83,8 @@ export default {
         })
       }
     },
-    prevPage () { // Method to go to the login page and display a notification of the change
-      this.$router.push('/')
-      this.$q.notify({
-        color: 'positive',
-        position: 'bottom',
-        message: 'Login Page Loaded'
-      })
-    },
-    back () {
-      this.$router.back()
+    toRoom () {
+      this.$router.push('/RoomSelect')
     }
   }
 }

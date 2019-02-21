@@ -56,7 +56,8 @@ module.exports = function (ctx) {
         'QItemMain',
         'QItemSide',
         'QInput',
-        'QSelect'
+        'QSelect',
+        'QPullToRefresh'
       ],
       directives: [
         'Ripple'
@@ -115,6 +116,7 @@ module.exports = function (ctx) {
     },
     cordova: {
       // id: 'org.cordova.quasar.app'
+      iosStatusBarPadding: true
     },
     electron: {
       // bundler: 'builder', // or 'packager'
