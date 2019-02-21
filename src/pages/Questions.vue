@@ -41,7 +41,7 @@ export default {
     }
   },
   mounted: function () {
-    console.log('Page Loaded')
+    console.log('Page Loaded') // Debug
   },
   methods: {
     loadData () { // Method to call basic random number fact api and displays the response as notification and writes to console
@@ -63,7 +63,7 @@ export default {
           })
         })
     },
-    questionSubmit: function () {
+    questionSubmit: function () { // Fucntion called to submit the question with ajax post request
       if (this.question !== undefined && this.question !== '') { // Only allow existing questions, most fundamental verification
         this.loading = true
         setTimeout(() => { // Simulating a 1.5 second wait on a ficticious ajax call
@@ -83,7 +83,7 @@ export default {
         })
       }
     },
-    toRoom () {
+    toRoom () { // Go back to session selection screen
       this.$router.push('/RoomSelect')
     }
   }

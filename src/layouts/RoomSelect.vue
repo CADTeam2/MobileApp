@@ -51,6 +51,10 @@
 <script>
 import { openURL } from 'quasar'
 
+document.addEventListener('deviceready', () => {
+
+}, false)
+
 export default {
   name: 'Questions',
   data () {

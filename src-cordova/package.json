@@ -16,7 +16,8 @@
     "cordova-android": "^7.1.4",
     "cordova-ios": "^5.0.0",
     "cordova-plugin-keyboard": "^1.2.0",
-    "cordova-plugin-whitelist": "1"
+    "cordova-plugin-whitelist": "1",
+    "cordova-plugin-wkwebview-engine": "^1.1.4"
   },
   "devDependencies": {
     "@vue/eslint-config-standard": "^4.0.0",
@@ -47,7 +48,8 @@
     ],
     "plugins": {
       "cordova-plugin-whitelist": {},
-      "cordova-plugin-keyboard": {}
+      "cordova-plugin-keyboard": {},
+      "cordova-plugin-wkwebview-engine": {}
     }
   }
 }

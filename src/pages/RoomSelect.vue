@@ -1,28 +1,44 @@
 <template>
-  <q-pull-to-refresh :handler="refreshHandler">
+  <q-pull-to-refresh :handler="refreshHandler"> <!-- Allows pull to refresh (will be depreciated along with conference selection) -->
     <q-page padding class="docs-input flex flex-center column justify-center">
       <div style="width: 500px; max-width:90vw;"> <!-- Width of input never exceeds 500px -->
-        <q-select
+        <!-- Selection for conference (possibly redundant) -->
+        <!-- <q-select
         v-model="select"
         :value="value"
         :disable="disableSelect"
         @input="handleChange"
         :float-label="dispVal"
         :options="optionsFromAPI"
-        />
+        /> -->
+        <!-- Input for session ID -->
+        <q-field
+        :error="error"
+        :count="sessLength"
+        >
+          <q-input
+          v-model="sessID"
+          type="text"
+          @input="handleChange"
+          float-label="Enter Session ID"
+          :maxlength="sessLength"
+          />
+        </q-field>
       </div>
-        <div>
+        <!-- <div>
+          Button to grab new conferences from the server
           <q-btn
             style="margin-top: 20px"
             label="Fetch API"
             :loading="loading"
             @click="populateSelect"
           />
-        </div>
+        </div> -->
         <div>
+          <!-- Join session -->
           <q-btn
             style="margin-top: 20px"
-            label="Join Conference"
+            label="Join Session"
             :disable="disabled"
             @click="joinRoom"
           />
@@ -36,13 +52,16 @@ export default {
   data () {
     return {
       loading: false,
-      select: '',
-      optionsFromAPI: [
+      select: '', // Depreciated
+      optionsFromAPI: [ // Depriciated
       ],
       disabled: true,
-      timeout: 20000, // Global timeout variable
-      disableSelect: true,
-      dispVal: 'Loading...'
+      timeout: 20000, // Global timeout variable, depreciated
+      disableSelect: true, // Depriciated
+      dispVal: 'Loading...', // Possibly depriciated
+      sessID: '',
+      sessLength: 5, // Possibly unnecessary
+      error: false
     }
   },
   mounted: function () { // Populate select list on page load, simulating db API call
@@ -177,11 +196,11 @@ export default {
         })
     },
     joinRoom () {
-      this.$router.push('/asking/' + this.select)
+      this.$router.push('/asking/' + this.sessID)
       this.$q.notify({
         color: 'primary',
         position: 'bottom',
-        message: 'Joining room ' + this.select
+        message: 'Joining room ' + this.sessID
       })
     },
     refreshHandler (done) { // Identical to populateSelect but with the done function for pull to refresh
@@ -246,8 +265,12 @@ export default {
           console.log(error.config)
         })
     },
-    handleChange () {
-      this.disabled = false
+    handleChange () { // Simple insurance that the user has entered a code of a certain length
+      if (this.sessID !== '' && this.sessID.length === this.sessLength) {
+        this.disabled = false
+      } else {
+        this.disabled = true
+      }
     }
   }
 }
