@@ -37,7 +37,9 @@ export default {
   data () {
     return { // Value defaults to allow field refresh
       question: '',
-      loading: false
+      loading: false,
+      timeout: 20000,
+      apiAddress: 'https://reqres.in/'
     }
   },
   mounted: function () {
@@ -66,15 +68,70 @@ export default {
     questionSubmit: function () { // Fucntion called to submit the question with ajax post request
       if (this.question !== undefined && this.question !== '') { // Only allow existing questions, most fundamental verification
         this.loading = true
-        setTimeout(() => { // Simulating a 1.5 second wait on a ficticious ajax call
-          this.$q.notify({
-            color: 'positive',
-            position: 'bottom',
-            message: 'Submission Successful' // Displays question for testing beofre api is ready
+        console.log(this.question)
+        this.$axios({
+          method: 'post',
+          url: this.apiAddress + 'api/users',
+          data: {
+            question: this.question
+          },
+          timeout: this.timeout
+        })
+          .then((response) => {
+            this.loading = false
+            this.$q.notify({
+              color: 'positive',
+              position: 'bottom',
+              message: 'Submission ' + response.data.question + ' recieved' // Displays question for testing beofre api is ready
+            })
           })
-          this.loading = false
-          this.question = '' // Delete the sent question from the input
-        }, 1500)
+          .catch((error) => {
+            if (error.response) {
+              // console.log(error.response.data);
+              this.$q.notify({
+                color: 'info',
+                position: 'top',
+                message: 'Error retreiving conferences: ' + error.response.status,
+                icon: 'cloud'
+              })
+              this.loading = false
+              this.dispVal = 'Error Loading'
+              // console.log(error.response.status);
+              // console.log(error.response.headers)
+            } else if (error.request) {
+              // The request was made but no response was received
+              // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+              // http.ClientRequest in node.js
+              if (error.code === 'ECONNABORTED') { // Ran if connection exceeds timeout limit
+                this.$q.notify({
+                  color: 'warning',
+                  position: 'top',
+                  message: 'Conference retrieval timeout, are you online?'
+                })
+              } else {
+                this.$q.notify({
+                  color: 'warning',
+                  position: 'top',
+                  message: 'Could not retrieve conferences, are you online?'
+                })
+              }
+              console.log(error.request)
+              this.loading = false
+              this.dispVal = 'Error Loading'
+            } else {
+              // Something happened in setting up the request that triggered an Error
+              console.log('Error', error.message)
+              this.loading = false
+              this.$q.notify({
+                color: 'warning',
+                position: 'top',
+                message: '' + error.request
+              })
+              this.loading = false
+              this.dispVal = 'Error Loading'
+            }
+            console.log(error.config)
+          })
       } else {
         this.$q.notify({ // Return error message if no question is entered
           color: 'negative',
