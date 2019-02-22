@@ -79,6 +79,7 @@ export default {
         })
           .then((response) => {
             this.loading = false
+            this.question = ''
             this.$q.notify({
               color: 'positive',
               position: 'bottom',
