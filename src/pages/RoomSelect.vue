@@ -1,16 +1,16 @@
 <template>
-  <q-pull-to-refresh :handler="refreshHandler"> <!-- Allows pull to refresh (will be depreciated along with conference selection) -->
+  <q-pull-to-refresh :handler="refreshHandler"> <!-- Allows pull to refresh (will be depreciated along with event selection) -->
     <q-page padding class="docs-input flex flex-center column justify-center">
       <div style="width: 500px; max-width:90vw;"> <!-- Width of input never exceeds 500px -->
-        <!-- Selection for conference (possibly redundant) -->
-        <!-- <q-select
+        <!-- Selection for event (possibly redundant) -->
+        <q-select
         v-model="select"
         :value="value"
         :disable="disableSelect"
         @input="handleChange"
         :float-label="dispVal"
         :options="optionsFromAPI"
-        /> -->
+        />
         <!-- Input for session ID -->
         <q-field
         :error="error"
@@ -25,15 +25,15 @@
           />
         </q-field>
       </div>
-        <!-- <div>
-          Button to grab new conferences from the server
+        <div>
+          <!-- Button to grab new events from the server -->
           <q-btn
             style="margin-top: 20px"
             label="Fetch API"
             :loading="loading"
             @click="populateSelect"
           />
-        </div> -->
+        </div>
         <div>
           <!-- Join session -->
           <q-btn
@@ -52,15 +52,15 @@ export default {
   data () {
     return {
       loading: false,
-      select: '', // Depreciated
-      optionsFromAPI: [ // Depriciated
+      select: '', // Selected event
+      optionsFromAPI: [ // List of events from API call
       ],
       disabled: true,
-      timeout: 20000, // Global timeout variable, depreciated
-      disableSelect: true, // Depriciated
-      dispVal: 'Loading...', // Possibly depriciated
+      timeout: 20000, // Global timeout variable for API call
+      disableSelect: true, // Disables the selection box when there is not data, prevents showing one blank entry
+      dispVal: 'Loading...', // Displays in the slection bar when retrieveing events
       sessID: '',
-      sessLength: 5, // Possibly unnecessary
+      sessLength: 5, // Maximum length for the room code, likely unnecessary in the future
       error: false
     }
   },
@@ -75,7 +75,7 @@ export default {
           this.optionsFromAPI.push({ label: response.data[i].name, value: response.data[i].name })
         }
         this.disableSelect = false
-        this.dispVal = 'Conference Selection'
+        this.dispVal = 'Event Selection'
       })
       .catch((error) => {
         if (error.response) {
@@ -83,7 +83,7 @@ export default {
           this.$q.notify({
             color: 'info',
             position: 'top',
-            message: 'Error retreiving conferences: ' + error.response.status,
+            message: 'Error retreiving events: ' + error.response.status,
             icon: 'cloud'
           })
           this.loading = false
@@ -98,13 +98,13 @@ export default {
             this.$q.notify({
               color: 'warning',
               position: 'top',
-              message: 'Conference retrieval timeout, are you online?'
+              message: 'Event retrieval timeout, are you online?'
             })
           } else {
             this.$q.notify({
               color: 'warning',
               position: 'top',
-              message: 'Could not retrieve conferences, are you online?'
+              message: 'Could not retrieve events, are you online?'
             })
           }
           console.log(error.request)
@@ -127,10 +127,11 @@ export default {
   },
   props: ['value'],
   methods: {
-    populateSelect () { // Option to pop list after page load
+    populateSelect () { // Option to pop list after page load, for dev, depreceated in final version
       this.loading = true
       this.optionsFromAPI = [] // Clears the array before loading so new items aren't duplicated
       this.dispVal = 'Loading...'
+      this.disableSelect = true
       this.$axios({
         method: 'get',
         url: 'https://jsonplaceholder.typicode.com/comments',
@@ -142,7 +143,8 @@ export default {
           }
           this.disableSelect = false
           this.loading = false
-          this.dispVal = 'Expanded Conference Selection'
+          this.dispVal = 'Expanded Event Selection'
+          this.disableSelect = false
         })
         .catch((error) => {
           if (error.response) {
@@ -150,7 +152,7 @@ export default {
             this.$q.notify({
               color: 'info',
               position: 'top',
-              message: 'Error retreiving conferences: ' + error.response.status,
+              message: 'Error retreiving events: ' + error.response.status,
               icon: 'cloud'
             })
             this.disableSelect = true
@@ -166,13 +168,13 @@ export default {
               this.$q.notify({
                 color: 'warning',
                 position: 'top',
-                message: 'Conference retrieval timeout, are you online?' // + error.request
+                message: 'Event retrieval timeout, are you online?' // + error.request
               })
             } else {
               this.$q.notify({
                 color: 'warning',
                 position: 'top',
-                message: 'Could not retrieve conferences, are you online?' // + error.request
+                message: 'Could not retrieve events, are you online?' // + error.request
               })
             }
             console.log(error.request)
@@ -223,7 +225,7 @@ export default {
             this.$q.notify({
               color: 'info',
               position: 'top',
-              message: 'Error retreiving conferences: ' + error.response.status,
+              message: 'Error retreiving events: ' + error.response.status,
               icon: 'cloud'
             })
             this.loading = false
@@ -238,13 +240,13 @@ export default {
               this.$q.notify({
                 color: 'warning',
                 position: 'top',
-                message: 'Conference retrieval timeout, are you online?' // + error.request
+                message: 'Event retrieval timeout, are you online?' // + error.request
               })
             } else {
               this.$q.notify({
                 color: 'warning',
                 position: 'top',
-                message: 'Could not retrieve conferences, are you online?' // + error.request
+                message: 'Could not retrieve events, are you online?' // + error.request
               })
             }
             console.log(error.request)
