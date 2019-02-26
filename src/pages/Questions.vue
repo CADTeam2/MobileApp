@@ -6,6 +6,7 @@
         clearable
         v-model="question"
         type="textarea"
+        :max-height="maxInputHeight"
         float-label="Enter Question Here"
       />
     </div>
@@ -39,7 +40,8 @@ export default {
       question: '',
       loading: false,
       timeout: 20000,
-      apiAddress: 'https://reqres.in/'
+      apiAddress: 'https://reqres.in/',
+      maxInputHeight: 0.35 * window.innerHeight
     }
   },
   mounted: function () {
@@ -65,7 +67,7 @@ export default {
           })
         })
     },
-    questionSubmit: function () { // Fucntion called to submit the question with ajax post request
+    questionSubmit: function () { // Function called to submit the question with ajax post request
       if (this.question !== undefined && this.question !== '') { // Only allow existing questions, most fundamental verification
         this.loading = true
         console.log(this.question)
