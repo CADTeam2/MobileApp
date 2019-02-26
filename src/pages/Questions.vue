@@ -73,7 +73,7 @@ export default {
         console.log(this.question)
         this.$axios({
           method: 'post',
-          url: this.apiAddress + 'api/users',
+          url: this.apiAddress + 'api/questions',
           data: {
             question: this.question
           },
@@ -94,7 +94,7 @@ export default {
               this.$q.notify({
                 color: 'info',
                 position: 'top',
-                message: 'Error retreiving conferences: ' + error.response.status,
+                message: 'Error sending question: \n' + error.response.status,
                 icon: 'cloud'
               })
               this.loading = false
@@ -109,13 +109,13 @@ export default {
                 this.$q.notify({
                   color: 'warning',
                   position: 'top',
-                  message: 'Conference retrieval timeout, are you online?'
+                  message: 'Question submission failed, are you online?'
                 })
               } else {
                 this.$q.notify({
                   color: 'warning',
                   position: 'top',
-                  message: 'Could not retrieve conferences, are you online?'
+                  message: 'Could not submit question, are you online?'
                 })
               }
               console.log(error.request)
@@ -128,8 +128,9 @@ export default {
               this.$q.notify({
                 color: 'warning',
                 position: 'top',
-                message: '' + error.request
+                message: 'Something went wrong'
               })
+              console.log(error.request)
               this.loading = false
               this.dispVal = 'Error Loading'
             }
