@@ -64,22 +64,24 @@ export default {
       error: false
     }
   },
-  mounted: function () { // Populate select list on page load, simulating db API call
+  mounted: function () { // Populate select list on page load
     this.$axios({
       method: 'get',
-      url: 'https://jsonplaceholder.typicode.com/comments',
+      url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/events', // Using temporary workaround for lacking return CORS headers
       timeout: this.timeout
+      // headers: { 'Access-Control-Allow-Origin': '*' },
+      // contentType: 'application/x-www-form-urlencoded'
     })
       .then((response) => {
-        for (var i = 0; i < 10; i++) { // Only adds 10 items, button loads all
-          this.optionsFromAPI.push({ label: response.data[i].name, value: response.data[i].name })
+        for (var i = 0; i < response.data.length; i++) { // Only adds 10 items, button loads all
+          this.optionsFromAPI.push({ label: response.data[i].city, value: response.data[i].city })
         }
         this.disableSelect = false
         this.dispVal = 'Event Selection'
       })
       .catch((error) => {
         if (error.response) {
-          // console.log(error.response.data);
+          console.log(error.response.data)
           this.$q.notify({
             color: 'info',
             position: 'top',
@@ -88,8 +90,8 @@ export default {
           })
           this.loading = false
           this.dispVal = 'Error Loading'
-          // console.log(error.response.status);
-          // console.log(error.response.headers)
+          console.log(error.response.status)
+          console.log(error.response.headers)
         } else if (error.request) {
           // The request was made but no response was received
           // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -134,12 +136,13 @@ export default {
       this.disableSelect = true
       this.$axios({
         method: 'get',
-        url: 'https://jsonplaceholder.typicode.com/comments',
+        url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/events',
         timeout: this.timeout // 20 second timeout
+        // headers: { 'Access-Control-Allow-Origin': '*' }
       })
         .then((response) => {
           for (var i = 0; i < response.data.length; i++) {
-            this.optionsFromAPI.push({ label: response.data[i].name, value: response.data[i].name })
+            this.optionsFromAPI.push({ label: response.data[i].city, value: response.data[i].city })
           }
           this.disableSelect = false
           this.loading = false
