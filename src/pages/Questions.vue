@@ -48,25 +48,6 @@ export default {
     console.log('Page Loaded') // Debug
   },
   methods: {
-    loadData () { // Method to call basic random number fact api and displays the response as notification and writes to console
-      this.$axios.get('http://numbersapi.com/random/trivia')
-        .then((response) => {
-          this.data = response.data
-          console.log(response.data)
-          this.$q.notify({
-            message: response.data,
-            color: 'info'
-          })
-        })
-        .catch(() => {
-          this.$q.notify({
-            color: 'negative',
-            position: 'top',
-            message: 'Loading failed',
-            icon: 'report_problem'
-          })
-        })
-    },
     questionSubmit: function () { // Function called to submit the question with ajax post request
       if (this.question !== undefined && this.question !== '') { // Only allow existing questions, most fundamental verification
         this.loading = true
