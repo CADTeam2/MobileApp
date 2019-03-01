@@ -74,7 +74,13 @@ export default {
     })
       .then((response) => {
         for (var i = 0; i < response.data.length; i++) { // Only adds 10 items, button loads all
-          this.optionsFromAPI.push({ label: response.data[i].city, value: response.data[i].city })
+          if (response.data[i].city != null) { // Shows only either city, street or postcode if they exist, ignores others (placeholder options)
+            this.optionsFromAPI.push({ label: response.data[i].city, value: response.data[i].city })
+          } else if (response.data[i].street != null) {
+            this.optionsFromAPI.push({ label: response.data[i].street, value: response.data[i].street })
+          } else if (response.data[i].postcode != null) {
+            this.optionsFromAPI.push({ label: response.data[i].postcode, value: response.data[i].postcode })
+          }
         }
         this.disableSelect = false
         this.dispVal = 'Event Selection'
@@ -142,7 +148,13 @@ export default {
       })
         .then((response) => {
           for (var i = 0; i < response.data.length; i++) {
-            this.optionsFromAPI.push({ label: response.data[i].city, value: response.data[i].city })
+            if (response.data[i].city != null) {
+              this.optionsFromAPI.push({ label: response.data[i].city, value: response.data[i].city })
+            } else if (response.data[i].street != null) {
+              this.optionsFromAPI.push({ label: response.data[i].street, value: response.data[i].street })
+            } else if (response.data[i].postcode != null) {
+              this.optionsFromAPI.push({ label: response.data[i].postcode, value: response.data[i].postcode })
+            }
           }
           this.disableSelect = false
           this.loading = false
