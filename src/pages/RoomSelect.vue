@@ -4,15 +4,23 @@
       <div style="width: 500px; max-width:90vw;"> <!-- Width of input never exceeds 500px -->
         <!-- Selection for event (possibly redundant) -->
         <q-select
-        v-model="select"
+        v-model="eventSelect"
         :value="value"
         :disable="disableSelect"
-        @input="handleChange"
+        @input="handleEventSelect"
         :float-label="dispVal"
-        :options="optionsFromAPI"
+        :options="eventOptions"
         />
         <!-- Input for session ID -->
-        <q-field
+        <q-select
+        v-model="sessID"
+        :value="value"
+        :disable="disableSessSelect"
+        @input="handleChange"
+        :float-label="sessionDispVal"
+        :options="sessionOptions"
+        />
+        <!-- <q-field
         :error="error"
         :count="sessLength"
         >
@@ -23,7 +31,7 @@
           float-label="Enter Session ID"
           :maxlength="sessLength"
           />
-        </q-field>
+        </q-field> -->
       </div>
         <div>
           <!-- Button to grab new events from the server -->
@@ -52,16 +60,19 @@ export default {
   data () {
     return {
       loading: false,
-      select: '', // Selected event
-      optionsFromAPI: [ // List of events from API call
-      ],
+      eventSelect: '', // Selected event
+      eventOptions: [], // List of events from API call
+      sessionOptions: [],
       disabled: true,
       timeout: 20000, // Global timeout variable for API call
       disableSelect: true, // Disables the selection box when there is not data, prevents showing one blank entry
       dispVal: 'Loading...', // Displays in the slection bar when retrieveing events
+      sessionDispVal: 'Select Event First',
       sessID: '',
       sessLength: 5, // Maximum length for the room code, likely unnecessary in the future
-      error: false
+      error: false,
+      selectSessID: null,
+      disableSessSelect: true
     }
   },
   mounted: function () { // Populate select list on page load
@@ -75,11 +86,11 @@ export default {
       .then((response) => {
         for (var i = 0; i < response.data.length; i++) { // Only adds 10 items, button loads all
           if (response.data[i].city != null) { // Shows only either city, street or postcode if they exist, ignores others (placeholder options)
-            this.optionsFromAPI.push({ label: response.data[i].city, value: response.data[i].city })
+            this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
           } else if (response.data[i].street != null) {
-            this.optionsFromAPI.push({ label: response.data[i].street, value: response.data[i].street })
+            this.eventOptions.push({ label: response.data[i].street, value: response.data[i].eventID })
           } else if (response.data[i].postcode != null) {
-            this.optionsFromAPI.push({ label: response.data[i].postcode, value: response.data[i].postcode })
+            this.eventOptions.push({ label: response.data[i].postcode, value: response.data[i].eventID })
           }
         }
         this.disableSelect = false
@@ -137,7 +148,7 @@ export default {
   methods: {
     populateSelect () { // Option to pop list after page load, for dev, depreceated in final version
       this.loading = true
-      this.optionsFromAPI = [] // Clears the array before loading so new items aren't duplicated
+      this.eventOptions = [] // Clears the array before loading so new items aren't duplicated
       this.dispVal = 'Loading...'
       this.disableSelect = true
       this.$axios({
@@ -149,11 +160,11 @@ export default {
         .then((response) => {
           for (var i = 0; i < response.data.length; i++) {
             if (response.data[i].city != null) {
-              this.optionsFromAPI.push({ label: response.data[i].city, value: response.data[i].city })
+              this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
             } else if (response.data[i].street != null) {
-              this.optionsFromAPI.push({ label: response.data[i].street, value: response.data[i].street })
+              this.eventOptions.push({ label: response.data[i].street, value: response.data[i].eventID })
             } else if (response.data[i].postcode != null) {
-              this.optionsFromAPI.push({ label: response.data[i].postcode, value: response.data[i].postcode })
+              this.eventOptions.push({ label: response.data[i].postcode, value: response.data[i].eventID })
             }
           }
           this.disableSelect = false
@@ -221,7 +232,7 @@ export default {
       })
     },
     refreshHandler (done) { // Identical to populateSelect but with the done function for pull to refresh
-      this.optionsFromAPI = [] // Clears the array before loading so new items aren't duplicated
+      this.eventOptions = [] // Clears the array before loading so new items aren't duplicated
       this.$axios({
         method: 'get',
         url: 'https://jsonplaceholder.typicode.com/comments',
@@ -229,7 +240,7 @@ export default {
       })
         .then((response) => {
           for (var i = 0; i < response.data.length; i++) {
-            this.optionsFromAPI.push({ label: response.data[i].name, value: response.data[i].name })
+            this.eventOptions.push({ label: response.data[i].name, value: response.data[i].name })
           }
           this.loading = false
           done()
@@ -288,6 +299,79 @@ export default {
       } else {
         this.disabled = true
       }
+    },
+    handleEventSelect () {
+      this.disableSessSelect = true
+      this.loading = true
+      this.sessionDispVal = 'Loading...'
+      this.$axios({
+        method: 'get',
+        url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/sessions',
+        timeout: this.timeout // 20 second timeout
+        // headers: { 'Access-Control-Allow-Origin': '*' }
+      })
+        .then((response) => {
+          this.sessionOptions = []
+          for (var i = 0; i < response.data.length; i++) {
+            if (response.data[i].eventID === this.eventSelect) {
+              this.sessionOptions.push({ label: response.data[i].speaker, value: response.data[i].sessionID })
+            }
+          }
+          this.disableSessSelect = false
+          this.loading = false
+          this.sessionDispVal = 'Select Session'
+          console.log(this.sessionOptions)
+        })
+        .catch((error) => {
+          if (error.response) {
+            // console.log(error.response.data);
+            this.$q.notify({
+              color: 'info',
+              position: 'top',
+              message: 'Error retreiving events: ' + error.response.status,
+              icon: 'cloud'
+            })
+            this.disableSelect = true
+            this.loading = false
+            this.dispVal = 'Error Loading'
+            // console.log(error.response.status);
+            // console.log(error.response.headers)
+          } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            if (error.code === 'ECONNABORTED') {
+              this.$q.notify({
+                color: 'warning',
+                position: 'top',
+                message: 'Event retrieval timeout, are you online?' // + error.request
+              })
+            } else {
+              this.$q.notify({
+                color: 'warning',
+                position: 'top',
+                message: 'Could not retrieve events, are you online?' // + error.request
+              })
+            }
+            console.log(error.request)
+            this.disableSelect = true
+            this.loading = false
+            this.dispVal = 'Error Loading'
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message)
+            this.loading = false
+            this.$q.notify({
+              color: 'warning',
+              position: 'top',
+              message: '' + error.request
+            })
+            this.disableSelect = true
+            this.loading = false
+            this.dispVal = 'Error Loading'
+          }
+          console.log(error.config)
+        })
     }
   }
 }
