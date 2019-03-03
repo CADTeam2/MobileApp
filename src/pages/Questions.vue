@@ -40,7 +40,7 @@ export default {
       question: '',
       loading: false,
       timeout: 20000,
-      apiAddress: 'https://reqres.in/',
+      apiAddress: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/questions',
       maxInputHeight: 0.35 * window.innerHeight
     }
   },
@@ -54,9 +54,11 @@ export default {
         console.log(this.question)
         this.$axios({
           method: 'post',
-          url: this.apiAddress + 'api/questions',
+          url: this.apiAddress,
           data: {
-            question: this.question
+            question: this.question,
+            sessionID: this.$store.state.data.session.value,
+            userID: this.$store.state.data.userID
           },
           timeout: this.timeout
         })
