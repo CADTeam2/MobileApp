@@ -37,7 +37,7 @@
           <!-- Button to grab new events from the server -->
           <q-btn
             style="margin-top: 20px"
-            label="Fetch API"
+            label="Refresh Events"
             :loading="loading"
             @click="populateSelect"
           />
@@ -72,7 +72,8 @@ export default {
       sessLength: 5, // Maximum length for the room code, likely unnecessary in the future
       error: false,
       selectSessID: null,
-      disableSessSelect: true
+      disableSessSelect: true,
+      sessLabel: ''
     }
   },
   mounted: function () { // Populate select list on page load
@@ -170,7 +171,6 @@ export default {
           this.disableSelect = false
           this.loading = false
           this.dispVal = 'Expanded Event Selection'
-          this.disableSelect = false
         })
         .catch((error) => {
           if (error.response) {
@@ -224,11 +224,16 @@ export default {
         })
     },
     joinRoom () {
-      this.$router.push('/asking/' + this.sessID)
+      this.sessionOptions.forEach(element => { // To output speaker name rather than session ID
+        if (element.value === this.sessID) {
+          this.sessLabel = element.label
+        }
+      })
+      this.$router.push('/asking/' + this.sessLabel)
       this.$q.notify({
         color: 'primary',
         position: 'bottom',
-        message: 'Joining room ' + this.sessID
+        message: 'Joining session with speaker: ' + this.sessLabel
       })
     },
     refreshHandler (done) { // Identical to populateSelect but with the done function for pull to refresh
@@ -293,16 +298,13 @@ export default {
           console.log(error.config)
         })
     },
-    handleChange () { // Simple insurance that the user has entered a code of a certain length
-      if (this.sessID !== '' && this.sessID.length === this.sessLength) {
-        this.disabled = false
-      } else {
-        this.disabled = true
-      }
+    handleChange () { // Enables join room button on session select
+      this.disabled = false
     },
     handleEventSelect () {
       this.disableSessSelect = true
       this.loading = true
+      this.disabled = true
       this.sessionDispVal = 'Loading...'
       this.$axios({
         method: 'get',
@@ -331,9 +333,9 @@ export default {
               message: 'Error retreiving events: ' + error.response.status,
               icon: 'cloud'
             })
-            this.disableSelect = true
             this.loading = false
             this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
             // console.log(error.response.status);
             // console.log(error.response.headers)
           } else if (error.request) {
@@ -354,9 +356,9 @@ export default {
               })
             }
             console.log(error.request)
-            this.disableSelect = true
             this.loading = false
             this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
           } else {
             // Something happened in setting up the request that triggered an Error
             console.log('Error', error.message)
@@ -366,9 +368,9 @@ export default {
               position: 'top',
               message: '' + error.request
             })
-            this.disableSelect = true
             this.loading = false
             this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
           }
           console.log(error.config)
         })
