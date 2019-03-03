@@ -224,16 +224,11 @@ export default {
         })
     },
     joinRoom () {
-      this.sessionOptions.forEach(element => { // To output speaker name rather than session ID
-        if (element.value === this.sessID) {
-          this.sessLabel = element.label
-        }
-      })
-      this.$router.push('/asking/' + this.sessLabel)
+      this.$router.push('/asking/')
       this.$q.notify({
         color: 'primary',
         position: 'bottom',
-        message: 'Joining session with speaker: ' + this.sessLabel
+        message: 'Joining session with speaker: ' + this.$store.state.example.session.label
       })
     },
     refreshHandler (done) { // Identical to populateSelect but with the done function for pull to refresh
@@ -300,6 +295,12 @@ export default {
     },
     handleChange () { // Enables join room button on session select
       this.disabled = false
+      this.sessionOptions.forEach(element => { // To output speaker name rather than session ID
+        if (element.value === this.sessID) {
+          this.sessLabel = element.label
+          this.$store.commit('example/setSession', element)
+        }
+      })
     },
     handleEventSelect () {
       this.disableSessSelect = true

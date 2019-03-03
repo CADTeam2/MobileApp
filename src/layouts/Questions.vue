@@ -16,7 +16,7 @@
         </q-btn>
 
         <q-toolbar-title>
-          {{ this.$route.params.roomName }}
+          {{ this.$store.state.example.session.label }}
         </q-toolbar-title>
       </q-toolbar>
     </q-layout-header>

@@ -1,4 +1,3 @@
-/*
-export function someMutation (state) {
+export function setSession (state, sess) {
+  state.session = sess
 }
-*/
