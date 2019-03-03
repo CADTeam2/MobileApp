@@ -228,7 +228,7 @@ export default {
       this.$q.notify({
         color: 'primary',
         position: 'bottom',
-        message: 'Joining session with speaker: ' + this.$store.state.example.session.label
+        message: 'Joining session with speaker: ' + this.$store.state.data.session.label
       })
     },
     refreshHandler (done) { // Identical to populateSelect but with the done function for pull to refresh
@@ -298,7 +298,7 @@ export default {
       this.sessionOptions.forEach(element => { // To output speaker name rather than session ID
         if (element.value === this.sessID) {
           this.sessLabel = element.label
-          this.$store.commit('example/setSession', element)
+          this.$store.commit('data/setSession', element)
         }
       })
     },
