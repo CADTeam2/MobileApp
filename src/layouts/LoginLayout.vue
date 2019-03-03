@@ -52,7 +52,7 @@ document.addEventListener('deviceready', () => {
 }, false)
 
 export default {
-  name: 'MyLayout',
+  name: 'LoginLayout',
   data () {
     return {
       leftDrawerOpen: this.$q.platform.is.desktop
