@@ -77,6 +77,11 @@ export default {
     }
   },
   mounted: function () { // Populate select list on page load
+    this.$q.notify({
+      color: 'positive',
+      position: 'top',
+      message: 'Your user ID: ' + this.$store.state.data.userID
+    })
     this.$axios({
       method: 'get',
       url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/events', // Using temporary workaround for lacking return CORS headers

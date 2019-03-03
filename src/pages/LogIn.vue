@@ -14,7 +14,7 @@
       ref="password"
       type="password"
       float-label="Password"
-      @keyup.enter="dummyLogin()"
+      @keyup.enter="loginSubmit()"
       />
   </div>
         <div>
@@ -30,7 +30,8 @@
             style="margin-top: 20px;"
             icon="lock_open"
             label="Login"
-            @click="dummyLogin()"
+            @click="loginSubmit()"
+            :loading="loading"
             />
         </div>
   </q-page>
@@ -45,6 +46,9 @@ document.addEventListener('deviceready', () => {
 }, false)
 export default {
   name: 'PageIndex',
+  timeout: 20000,
+  userExist: false,
+  loading: false,
   methods: {
     nextPage () {
       this.$router.push('/RoomSelect')
@@ -54,12 +58,38 @@ export default {
         message: 'Pseudo login successful'
       })
     },
-    dummyLogin () {
-      this.$q.notify({
-        color: 'positive',
-        position: 'top',
-        message: 'Email: ' + this.email + ' Password: ' + this.password
+    loginSubmit () {
+      this.loading = true
+      this.$axios({
+        method: 'get',
+        url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/users',
+        timeout: this.timeout
       })
+        .then((response) => {
+          response.data.forEach(element => {
+            if (element.username === this.email || element.email === this.email) {
+              this.userExist = true
+              if (element.password === this.password) {
+                this.$store.commit('data/setUserID', element.userID)
+                this.$router.push('/RoomSelect')
+              } else {
+                this.$q.notify({
+                  color: 'warning',
+                  position: 'top',
+                  message: 'Password incorrect'
+                })
+              }
+            }
+          })
+          if (!this.userExist) {
+            this.$q.notify({
+              color: 'warning',
+              position: 'top',
+              message: 'User does not exist'
+            })
+          }
+        })
+      console.log(this.$store.state.data.userID)
     },
     shiftFocus () {
       this.$refs.username.blur()
