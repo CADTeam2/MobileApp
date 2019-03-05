@@ -4,15 +4,23 @@
       <div style="width: 500px; max-width:90vw;"> <!-- Width of input never exceeds 500px -->
         <!-- Selection for event (possibly redundant) -->
         <q-select
-        v-model="select"
+        v-model="eventSelect"
         :value="value"
         :disable="disableSelect"
-        @input="handleChange"
+        @input="handleEventSelect"
         :float-label="dispVal"
-        :options="optionsFromAPI"
+        :options="eventOptions"
         />
         <!-- Input for session ID -->
-        <q-field
+        <q-select
+        v-model="sessID"
+        :value="value"
+        :disable="disableSessSelect"
+        @input="handleChange"
+        :float-label="sessionDispVal"
+        :options="sessionOptions"
+        />
+        <!-- <q-field
         :error="error"
         :count="sessLength"
         >
@@ -23,13 +31,13 @@
           float-label="Enter Session ID"
           :maxlength="sessLength"
           />
-        </q-field>
+        </q-field> -->
       </div>
         <div>
           <!-- Button to grab new events from the server -->
           <q-btn
             style="margin-top: 20px"
-            label="Fetch API"
+            label="Refresh Events"
             :loading="loading"
             @click="populateSelect"
           />
@@ -52,34 +60,51 @@ export default {
   data () {
     return {
       loading: false,
-      select: '', // Selected event
-      optionsFromAPI: [ // List of events from API call
-      ],
+      eventSelect: '', // Selected event
+      eventOptions: [], // List of events from API call
+      sessionOptions: [],
       disabled: true,
       timeout: 20000, // Global timeout variable for API call
       disableSelect: true, // Disables the selection box when there is not data, prevents showing one blank entry
       dispVal: 'Loading...', // Displays in the slection bar when retrieveing events
+      sessionDispVal: 'Select Event First',
       sessID: '',
       sessLength: 5, // Maximum length for the room code, likely unnecessary in the future
-      error: false
+      error: false,
+      selectSessID: null,
+      disableSessSelect: true,
+      sessLabel: ''
     }
   },
-  mounted: function () { // Populate select list on page load, simulating db API call
+  mounted: function () { // Populate select list on page load
+    this.$q.notify({
+      color: 'positive',
+      position: 'top',
+      message: 'Your user ID: ' + this.$store.state.data.userID
+    })
     this.$axios({
       method: 'get',
-      url: 'https://jsonplaceholder.typicode.com/comments',
+      url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/events', // Using temporary workaround for lacking return CORS headers
       timeout: this.timeout
+      // headers: { 'Access-Control-Allow-Origin': '*' },
+      // contentType: 'application/x-www-form-urlencoded'
     })
       .then((response) => {
-        for (var i = 0; i < 10; i++) { // Only adds 10 items, button loads all
-          this.optionsFromAPI.push({ label: response.data[i].name, value: response.data[i].name })
+        for (var i = 0; i < response.data.length; i++) { // Only adds 10 items, button loads all
+          if (response.data[i].city != null) { // Shows only either city, street or postcode if they exist, ignores others (placeholder options)
+            this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
+          } else if (response.data[i].street != null) {
+            this.eventOptions.push({ label: response.data[i].street, value: response.data[i].eventID })
+          } else if (response.data[i].postcode != null) {
+            this.eventOptions.push({ label: response.data[i].postcode, value: response.data[i].eventID })
+          }
         }
         this.disableSelect = false
         this.dispVal = 'Event Selection'
       })
       .catch((error) => {
         if (error.response) {
-          // console.log(error.response.data);
+          console.log(error.response.data)
           this.$q.notify({
             color: 'info',
             position: 'top',
@@ -88,8 +113,8 @@ export default {
           })
           this.loading = false
           this.dispVal = 'Error Loading'
-          // console.log(error.response.status);
-          // console.log(error.response.headers)
+          console.log(error.response.status)
+          console.log(error.response.headers)
         } else if (error.request) {
           // The request was made but no response was received
           // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -129,22 +154,28 @@ export default {
   methods: {
     populateSelect () { // Option to pop list after page load, for dev, depreceated in final version
       this.loading = true
-      this.optionsFromAPI = [] // Clears the array before loading so new items aren't duplicated
+      this.eventOptions = [] // Clears the array before loading so new items aren't duplicated
       this.dispVal = 'Loading...'
       this.disableSelect = true
       this.$axios({
         method: 'get',
-        url: 'https://jsonplaceholder.typicode.com/comments',
+        url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/events',
         timeout: this.timeout // 20 second timeout
+        // headers: { 'Access-Control-Allow-Origin': '*' }
       })
         .then((response) => {
           for (var i = 0; i < response.data.length; i++) {
-            this.optionsFromAPI.push({ label: response.data[i].name, value: response.data[i].name })
+            if (response.data[i].city != null) {
+              this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
+            } else if (response.data[i].street != null) {
+              this.eventOptions.push({ label: response.data[i].street, value: response.data[i].eventID })
+            } else if (response.data[i].postcode != null) {
+              this.eventOptions.push({ label: response.data[i].postcode, value: response.data[i].eventID })
+            }
           }
           this.disableSelect = false
           this.loading = false
           this.dispVal = 'Expanded Event Selection'
-          this.disableSelect = false
         })
         .catch((error) => {
           if (error.response) {
@@ -198,15 +229,15 @@ export default {
         })
     },
     joinRoom () {
-      this.$router.push('/asking/' + this.sessID)
+      this.$router.push('/asking/')
       this.$q.notify({
         color: 'primary',
         position: 'bottom',
-        message: 'Joining room ' + this.sessID
+        message: 'Joining session with speaker: ' + this.$store.state.data.session.label
       })
     },
     refreshHandler (done) { // Identical to populateSelect but with the done function for pull to refresh
-      this.optionsFromAPI = [] // Clears the array before loading so new items aren't duplicated
+      this.eventOptions = [] // Clears the array before loading so new items aren't duplicated
       this.$axios({
         method: 'get',
         url: 'https://jsonplaceholder.typicode.com/comments',
@@ -214,7 +245,7 @@ export default {
       })
         .then((response) => {
           for (var i = 0; i < response.data.length; i++) {
-            this.optionsFromAPI.push({ label: response.data[i].name, value: response.data[i].name })
+            this.eventOptions.push({ label: response.data[i].name, value: response.data[i].name })
           }
           this.loading = false
           done()
@@ -267,12 +298,88 @@ export default {
           console.log(error.config)
         })
     },
-    handleChange () { // Simple insurance that the user has entered a code of a certain length
-      if (this.sessID !== '' && this.sessID.length === this.sessLength) {
-        this.disabled = false
-      } else {
-        this.disabled = true
-      }
+    handleChange () { // Enables join room button on session select
+      this.disabled = false
+      this.sessionOptions.forEach(element => { // To output speaker name rather than session ID
+        if (element.value === this.sessID) {
+          this.sessLabel = element.label
+          this.$store.commit('data/setSession', element)
+        }
+      })
+    },
+    handleEventSelect () {
+      this.disableSessSelect = true
+      this.loading = true
+      this.disabled = true
+      this.sessionDispVal = 'Loading...'
+      this.$axios({
+        method: 'get',
+        url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/sessions',
+        timeout: this.timeout // 20 second timeout
+        // headers: { 'Access-Control-Allow-Origin': '*' }
+      })
+        .then((response) => {
+          this.sessionOptions = []
+          for (var i = 0; i < response.data.length; i++) {
+            if (response.data[i].eventID === this.eventSelect) {
+              this.sessionOptions.push({ label: response.data[i].speaker, value: response.data[i].sessionID })
+            }
+          }
+          this.disableSessSelect = false
+          this.loading = false
+          this.sessionDispVal = 'Select Session'
+          console.log(this.sessionOptions)
+        })
+        .catch((error) => {
+          if (error.response) {
+            // console.log(error.response.data);
+            this.$q.notify({
+              color: 'info',
+              position: 'top',
+              message: 'Error retreiving events: ' + error.response.status,
+              icon: 'cloud'
+            })
+            this.loading = false
+            this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
+            // console.log(error.response.status);
+            // console.log(error.response.headers)
+          } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            if (error.code === 'ECONNABORTED') {
+              this.$q.notify({
+                color: 'warning',
+                position: 'top',
+                message: 'Event retrieval timeout, are you online?' // + error.request
+              })
+            } else {
+              this.$q.notify({
+                color: 'warning',
+                position: 'top',
+                message: 'Could not retrieve events, are you online?' // + error.request
+              })
+            }
+            console.log(error.request)
+            this.loading = false
+            this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message)
+            this.loading = false
+            this.$q.notify({
+              color: 'warning',
+              position: 'top',
+              message: '' + error.request
+            })
+            this.loading = false
+            this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
+          }
+          console.log(error.config)
+        })
     }
   }
 }

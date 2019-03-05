@@ -64,6 +64,8 @@ export default {
   },
   methods: {
     prevPage () {
+      this.$store.commit('data/setSession', [])
+      this.$store.commit('data/setUserID', '')
       this.$router.push('/')
       this.$q.notify({
         color: 'positive',

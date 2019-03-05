@@ -16,7 +16,7 @@
         </q-btn>
 
         <q-toolbar-title>
-          {{ this.$route.params.roomName }}
+          {{ this.$store.state.data.session.label }}
         </q-toolbar-title>
       </q-toolbar>
     </q-layout-header>
@@ -64,6 +64,8 @@ export default {
   },
   methods: {
     prevPage () {
+      this.$store.commit('data/setSession', [])
+      this.$store.commit('data/setUserID', '')
       this.$router.push('/')
       this.$q.notify({
         color: 'positive',

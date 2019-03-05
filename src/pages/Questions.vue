@@ -40,7 +40,7 @@ export default {
       question: '',
       loading: false,
       timeout: 20000,
-      apiAddress: 'https://reqres.in/',
+      apiAddress: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/questions',
       maxInputHeight: 0.35 * window.innerHeight
     }
   },
@@ -48,34 +48,17 @@ export default {
     console.log('Page Loaded') // Debug
   },
   methods: {
-    loadData () { // Method to call basic random number fact api and displays the response as notification and writes to console
-      this.$axios.get('http://numbersapi.com/random/trivia')
-        .then((response) => {
-          this.data = response.data
-          console.log(response.data)
-          this.$q.notify({
-            message: response.data,
-            color: 'info'
-          })
-        })
-        .catch(() => {
-          this.$q.notify({
-            color: 'negative',
-            position: 'top',
-            message: 'Loading failed',
-            icon: 'report_problem'
-          })
-        })
-    },
     questionSubmit: function () { // Function called to submit the question with ajax post request
       if (this.question !== undefined && this.question !== '') { // Only allow existing questions, most fundamental verification
         this.loading = true
         console.log(this.question)
         this.$axios({
           method: 'post',
-          url: this.apiAddress + 'api/questions',
+          url: this.apiAddress,
           data: {
-            question: this.question
+            question: this.question,
+            sessionID: this.$store.state.data.session.value,
+            userID: this.$store.state.data.userID
           },
           timeout: this.timeout
         })
@@ -145,6 +128,7 @@ export default {
       }
     },
     toRoom () { // Go back to session selection screen
+      this.$store.commit('data/setSession', [])
       this.$router.push('/RoomSelect')
     }
   }
