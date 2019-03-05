@@ -128,6 +128,7 @@ export default {
       }
     },
     toRoom () { // Go back to session selection screen
+      this.$store.commit('data/setSession', [])
       this.$router.push('/RoomSelect')
     }
   }
