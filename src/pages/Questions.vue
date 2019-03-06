@@ -2,13 +2,18 @@
   <q-page padding class="docs-input flex flex-center column justify-center">
     <div style="width: 500px; max-width:90vw;"> <!-- Width of input never exceeds 500px -->
       <!--<p id="rmID">Conference (room) name: {{ this.$route.params.roomName }}</p>-->
-      <q-input
-        clearable
-        v-model="question"
-        type="textarea"
-        :max-height="maxInputHeight"
-        float-label="Enter Question Here"
-      />
+      <q-field
+      :count="maxQ"
+      >
+        <q-input
+          clearable
+          v-model="question"
+          type="textarea"
+          :max-height="maxInputHeight"
+          float-label="Enter Question Here"
+          :maxlength="maxQ"
+        />
+      </q-field>
     </div>
     <div>
       <q-btn
@@ -41,7 +46,8 @@ export default {
       loading: false,
       timeout: 20000,
       apiAddress: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/questions',
-      maxInputHeight: 0.35 * window.innerHeight
+      maxInputHeight: 0.35 * window.innerHeight,
+      maxQ: 250
     }
   },
   mounted: function () {
