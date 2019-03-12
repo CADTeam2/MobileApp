@@ -73,7 +73,10 @@ export default {
                 this.$store.commit('data/setUserID', element.userID)
                 this.$router.push('/RoomSelect')
               } else {
-                this.$q.notify({
+                if (typeof this.passIncorr === 'function') {
+                  this.passIncorr()
+                }
+                this.passIncorr = this.$q.notify({
                   color: 'warning',
                   position: 'top',
                   message: 'Password incorrect'
@@ -82,7 +85,10 @@ export default {
             }
           })
           if (!this.userExist) {
-            this.$q.notify({
+            if (typeof this.userNotExist === 'function') {
+              this.userNotExist()
+            }
+            this.userNotExist = this.$q.notify({
               color: 'warning',
               position: 'top',
               message: 'User does not exist'
