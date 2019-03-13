@@ -299,7 +299,10 @@ export default {
     },
     joinRoom () {
       this.$router.push('/asking/')
-      this.$q.notify({
+      if (typeof this.sessionJoinNotif === 'function') {
+        this.sessionJoinNotif()
+      }
+      this.sessionJoinNotif = this.$q.notify({
         color: 'primary',
         position: 'bottom',
         message: 'Joining session with speaker: ' + this.$store.state.data.session.label
