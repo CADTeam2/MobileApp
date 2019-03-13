@@ -18,7 +18,7 @@
         :disable="disableSessSelect"
         @input="handleChange"
         :float-label="sessionDispVal"
-        :options="sessionOptions"
+        :options="sessSubset"
         />
         <!-- <q-field
         :error="error"
@@ -59,7 +59,7 @@
 export default {
   data () {
     return {
-      loading: false,
+      loading: true,
       eventSelect: '', // Selected event
       eventOptions: [], // List of events from API call
       sessionOptions: [],
@@ -67,13 +67,14 @@ export default {
       timeout: 20000, // Global timeout variable for API call
       disableSelect: true, // Disables the selection box when there is not data, prevents showing one blank entry
       dispVal: 'Loading...', // Displays in the slection bar when retrieveing events
-      sessionDispVal: 'Select Event First',
+      sessionDispVal: 'Loading...',
       sessID: '',
       sessLength: 5, // Maximum length for the room code, likely unnecessary in the future
       error: false,
       selectSessID: null,
       disableSessSelect: true,
-      sessLabel: ''
+      sessLabel: '',
+      sessSubset: []
     }
   },
   mounted: function () { // Populate select list on page load
@@ -86,11 +87,11 @@ export default {
       method: 'get',
       url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/events', // Using temporary workaround for lacking return CORS headers
       timeout: this.timeout
-      // headers: { 'Access-Control-Allow-Origin': '*' },
-      // contentType: 'application/x-www-form-urlencoded'
+    // headers: { 'Access-Control-Allow-Origin': '*' },
+    // contentType: 'application/x-www-form-urlencoded'
     })
       .then((response) => {
-        for (var i = 0; i < response.data.length; i++) { // Only adds 10 items, button loads all
+        for (var i = 0; i < response.data.length; i++) {
           if (response.data[i].city != null) { // Shows only either city, street or postcode if they exist, ignores others (placeholder options)
             this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
           } else if (response.data[i].street != null) {
@@ -101,6 +102,8 @@ export default {
         }
         this.disableSelect = false
         this.dispVal = 'Event Selection'
+        this.loading = false
+        this.$store.commit('data/setAllEvents', this.eventOptions)
       })
       .catch((error) => {
         if (error.response) {
@@ -116,9 +119,9 @@ export default {
           console.log(error.response.status)
           console.log(error.response.headers)
         } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
           if (error.code === 'ECONNABORTED') { // Ran if connection exceeds timeout limit
             this.$q.notify({
               color: 'warning',
@@ -136,6 +139,71 @@ export default {
           this.loading = false
           this.dispVal = 'Error Loading'
         } else {
+        // Something happened in setting up the request that triggered an Error
+          console.log('Error', error.message)
+          this.loading = false
+          this.$q.notify({
+            color: 'warning',
+            position: 'top',
+            message: '' + error.request
+          })
+          this.loading = false
+          this.dispVal = 'Error Loading'
+        }
+        console.log(error.config)
+      })
+    this.loading = true
+    this.$axios({
+      method: 'get',
+      url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/sessions',
+      timeout: this.timeout // 20 second timeout
+      // headers: { 'Access-Control-Allow-Origin': '*' }
+    })
+      .then((response) => {
+        this.sessionOptions = []
+        for (var i = 0; i < response.data.length; i++) {
+          this.sessionOptions.push({ label: response.data[i].speaker, value: response.data[i].sessionID, event: response.data[i].eventID })
+        }
+        this.loading = false
+        this.sessionDispVal = 'Select Event First'
+        console.log(this.sessionOptions)
+      })
+      .catch((error) => {
+        if (error.response) {
+          // console.log(error.response.data);
+          this.$q.notify({
+            color: 'info',
+            position: 'top',
+            message: 'Error retreiving events: ' + error.response.status,
+            icon: 'cloud'
+          })
+          this.loading = false
+          this.dispVal = 'Error Loading'
+          this.sessionDispVal = 'Error Loading'
+          // console.log(error.response.status);
+          // console.log(error.response.headers)
+        } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+          if (error.code === 'ECONNABORTED') {
+            this.$q.notify({
+              color: 'warning',
+              position: 'top',
+              message: 'Event retrieval timeout, are you online?' // + error.request
+            })
+          } else {
+            this.$q.notify({
+              color: 'warning',
+              position: 'top',
+              message: 'Could not retrieve events, are you online?' // + error.request
+            })
+          }
+          console.log(error.request)
+          this.loading = false
+          this.dispVal = 'Error Loading'
+          this.sessionDispVal = 'Error Loading'
+        } else {
           // Something happened in setting up the request that triggered an Error
           console.log('Error', error.message)
           this.loading = false
@@ -146,6 +214,7 @@ export default {
           })
           this.loading = false
           this.dispVal = 'Error Loading'
+          this.sessionDispVal = 'Error Loading'
         }
         console.log(error.config)
       })
@@ -308,78 +377,15 @@ export default {
       })
     },
     handleEventSelect () {
-      this.disableSessSelect = true
-      this.loading = true
-      this.disabled = true
-      this.sessionDispVal = 'Loading...'
-      this.$axios({
-        method: 'get',
-        url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/sessions',
-        timeout: this.timeout // 20 second timeout
-        // headers: { 'Access-Control-Allow-Origin': '*' }
-      })
-        .then((response) => {
-          this.sessionOptions = []
-          for (var i = 0; i < response.data.length; i++) {
-            if (response.data[i].eventID === this.eventSelect) {
-              this.sessionOptions.push({ label: response.data[i].speaker, value: response.data[i].sessionID })
-            }
-          }
-          this.disableSessSelect = false
-          this.loading = false
-          this.sessionDispVal = 'Select Session'
-          console.log(this.sessionOptions)
-        })
-        .catch((error) => {
-          if (error.response) {
-            // console.log(error.response.data);
-            this.$q.notify({
-              color: 'info',
-              position: 'top',
-              message: 'Error retreiving events: ' + error.response.status,
-              icon: 'cloud'
-            })
-            this.loading = false
-            this.dispVal = 'Error Loading'
-            this.sessionDispVal = 'Error Loading'
-            // console.log(error.response.status);
-            // console.log(error.response.headers)
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            if (error.code === 'ECONNABORTED') {
-              this.$q.notify({
-                color: 'warning',
-                position: 'top',
-                message: 'Event retrieval timeout, are you online?' // + error.request
-              })
-            } else {
-              this.$q.notify({
-                color: 'warning',
-                position: 'top',
-                message: 'Could not retrieve events, are you online?' // + error.request
-              })
-            }
-            console.log(error.request)
-            this.loading = false
-            this.dispVal = 'Error Loading'
-            this.sessionDispVal = 'Error Loading'
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log('Error', error.message)
-            this.loading = false
-            this.$q.notify({
-              color: 'warning',
-              position: 'top',
-              message: '' + error.request
-            })
-            this.loading = false
-            this.dispVal = 'Error Loading'
-            this.sessionDispVal = 'Error Loading'
-          }
-          console.log(error.config)
-        })
+      this.sessSubset = []
+      console.log(this.eventSelect)
+      console.log(this.sessionOptions[0].eventID)
+      for (var i = 0; i < this.sessionOptions.length; i++) {
+        if (this.sessionOptions[i].event === this.eventSelect) {
+          this.sessSubset.push({ label: this.sessionOptions[i].label, value: this.sessionOptions[i].value })
+        }
+      }
+      this.disableSessSelect = false
     }
   }
 }
