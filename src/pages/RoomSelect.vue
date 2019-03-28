@@ -85,7 +85,7 @@ export default {
     })
     this.$axios({
       method: 'get',
-      url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/events', // Using temporary workaround for lacking return CORS headers
+      url: 'https://cadgroup2.jdrcomputers.co.uk/api/events', // Using temporary workaround for lacking return CORS headers
       timeout: this.timeout
     // headers: { 'Access-Control-Allow-Origin': '*' },
     // contentType: 'application/x-www-form-urlencoded'
@@ -155,7 +155,7 @@ export default {
     this.loading = true
     this.$axios({
       method: 'get',
-      url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/sessions',
+      url: 'https://cadgroup2.jdrcomputers.co.uk/api/sessions',
       timeout: this.timeout // 20 second timeout
       // headers: { 'Access-Control-Allow-Origin': '*' }
     })
@@ -228,7 +228,7 @@ export default {
       this.disableSelect = true
       this.$axios({
         method: 'get',
-        url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/events',
+        url: 'https://cadgroup2.jdrcomputers.co.uk/api/events',
         timeout: this.timeout // 20 second timeout
         // headers: { 'Access-Control-Allow-Origin': '*' }
       })

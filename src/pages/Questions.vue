@@ -49,7 +49,7 @@ export default {
       question: '',
       loading: false,
       timeout: 20000,
-      apiAddress: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/questions',
+      apiAddress: 'https://cadgroup2.jdrcomputers.co.uk/api/questions',
       maxInputHeight: 0.33 * window.innerHeight,
       maxQ: 250,
       warning: false,

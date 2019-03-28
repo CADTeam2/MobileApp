@@ -62,16 +62,22 @@ export default {
       this.loading = true
       this.$axios({
         method: 'get',
-        url: 'https://cors-anywhere.herokuapp.com/https://cadgroup2.jdrcomputers.co.uk/api/users',
+        url: 'https://cadgroup2.jdrcomputers.co.uk/api/users',
         timeout: this.timeout
       })
         .then((response) => {
           response.data.forEach(element => {
             if (element.username === this.email || element.email === this.email) {
               this.userExist = true
-              if (element.password === this.password) {
+              if (this.userExist) { // if (element.password === this.password), no password required
                 this.$store.commit('data/setUserID', element.userID)
                 this.$router.push('/RoomSelect')
+                if (typeof this.userNotExist === 'function') {
+                  this.userNotExist()
+                }
+                if (typeof this.passIncorr === 'function') {
+                  this.passIncorr()
+                } // These close any open notifications from this page before moving to the next
               } else {
                 if (typeof this.passIncorr === 'function') {
                   this.passIncorr()
