@@ -78,14 +78,14 @@ export default {
     }
   },
   mounted: function () { // Populate select list on page load
-    this.$q.notify({
+    this.$q.notify({ // Temporary, for development
       color: 'positive',
       position: 'top',
       message: 'Your user ID: ' + this.$store.state.data.userID
     })
     this.$axios({
       method: 'get',
-      url: 'https://cadgroup2.jdrcomputers.co.uk/api/events', // Using temporary workaround for lacking return CORS headers
+      url: 'https://cadgroup2.jdrcomputers.co.uk/api/events', // Will change to 'https://cadgroup2.jdrcomputers.co.uk/api/events' + this.$store.state.data.userID when properly configured
       timeout: this.timeout
     // headers: { 'Access-Control-Allow-Origin': '*' },
     // contentType: 'application/x-www-form-urlencoded'
@@ -155,7 +155,7 @@ export default {
     this.loading = true
     this.$axios({
       method: 'get',
-      url: 'https://cadgroup2.jdrcomputers.co.uk/api/sessions',
+      url: 'https://cadgroup2.jdrcomputers.co.uk/api/sessions/user/' + this.$store.state.data.userID,
       timeout: this.timeout // 20 second timeout
       // headers: { 'Access-Control-Allow-Origin': '*' }
     })
@@ -228,7 +228,7 @@ export default {
       this.disableSelect = true
       this.$axios({
         method: 'get',
-        url: 'https://cadgroup2.jdrcomputers.co.uk/api/events',
+        url: 'https://cadgroup2.jdrcomputers.co.uk/api/events/users/' + this.$store.state.data.userID,
         timeout: this.timeout // 20 second timeout
         // headers: { 'Access-Control-Allow-Origin': '*' }
       })
