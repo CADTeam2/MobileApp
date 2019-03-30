@@ -68,8 +68,10 @@ export default {
         .then((response) => {
           response.data.forEach(element => {
             if (element.username === this.email || element.email === this.email) {
+              console.log(element.username)
+              console.log(element.password)
               this.userExist = true
-              if (this.userExist) { // if (element.password === this.password), no password required
+              if (element.password === this.password) { // if (element.password === this.password), no password required
                 this.$store.commit('data/setUserID', element.userID)
                 this.$router.push('/RoomSelect')
                 if (typeof this.userNotExist === 'function') {

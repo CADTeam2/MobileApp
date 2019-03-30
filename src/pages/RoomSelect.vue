@@ -1,5 +1,4 @@
 <template>
-  <q-pull-to-refresh :handler="refreshHandler"> <!-- Allows pull to refresh (will be depreciated along with event selection) -->
     <q-page padding class="docs-input flex flex-center column justify-center">
       <div style="width: 500px; max-width:90vw;"> <!-- Width of input never exceeds 500px -->
         <!-- Selection for event (possibly redundant) -->
@@ -52,7 +51,6 @@
           />
         </div>
     </q-page>
-  </q-pull-to-refresh>
 </template>
 
 <script>
@@ -78,11 +76,11 @@ export default {
     }
   },
   mounted: function () { // Populate select list on page load
-    this.$q.notify({ // Temporary, for development
-      color: 'positive',
-      position: 'top',
-      message: 'Your user ID: ' + this.$store.state.data.userID
-    })
+    // this.$q.notify({ // Temporary, for development
+    //   color: 'positive',
+    //   position: 'top',
+    //   message: 'Your user ID: ' + this.$store.state.data.userID
+    // })
     this.$axios({
       method: 'get',
       url: 'https://cadgroup2.jdrcomputers.co.uk/api/events', // Will change to 'https://cadgroup2.jdrcomputers.co.uk/api/events' + this.$store.state.data.userID when properly configured
@@ -193,11 +191,11 @@ export default {
               message: 'Event retrieval timeout, are you online?' // + error.request
             })
           } else {
-            this.$q.notify({
-              color: 'warning',
-              position: 'top',
-              message: 'Could not retrieve events, are you online?' // + error.request
-            })
+            // this.$q.notify({
+            //   color: 'warning',
+            //   position: 'top',
+            //   message: 'Could not retrieve events, are you online?'
+            // })
           }
           console.log(error.request)
           this.loading = false
@@ -228,13 +226,14 @@ export default {
       this.disableSelect = true
       this.$axios({
         method: 'get',
-        url: 'https://cadgroup2.jdrcomputers.co.uk/api/events/users/' + this.$store.state.data.userID,
-        timeout: this.timeout // 20 second timeout
-        // headers: { 'Access-Control-Allow-Origin': '*' }
+        url: 'https://cadgroup2.jdrcomputers.co.uk/api/events', // Will change to 'https://cadgroup2.jdrcomputers.co.uk/api/events' + this.$store.state.data.userID when properly configured
+        timeout: this.timeout
+        // headers: { 'Access-Control-Allow-Origin': '*' },
+        // contentType: 'application/x-www-form-urlencoded'
       })
         .then((response) => {
           for (var i = 0; i < response.data.length; i++) {
-            if (response.data[i].city != null) {
+            if (response.data[i].city != null) { // Shows only either city, street or postcode if they exist, ignores others (placeholder options)
               this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
             } else if (response.data[i].street != null) {
               this.eventOptions.push({ label: response.data[i].street, value: response.data[i].eventID })
@@ -243,8 +242,66 @@ export default {
             }
           }
           this.disableSelect = false
+          this.dispVal = 'Event Selection'
           this.loading = false
-          this.dispVal = 'Expanded Event Selection'
+          this.$store.commit('data/setAllEvents', this.eventOptions)
+        })
+        .catch((error) => {
+          if (error.response) {
+            console.log(error.response.data)
+            this.$q.notify({
+              color: 'info',
+              position: 'top',
+              message: 'Error retreiving events: ' + error.response.status,
+              icon: 'cloud'
+            })
+            this.loading = false
+            this.dispVal = 'Error Loading'
+            console.log(error.response.status)
+            console.log(error.response.headers)
+          } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+            if (error.code === 'ECONNABORTED') { // Ran if connection exceeds timeout limit
+              this.$q.notify({
+                color: 'warning',
+                position: 'top',
+                message: 'Event retrieval timeout, are you online?'
+              })
+            }
+            console.log(error.request)
+            this.loading = false
+            this.dispVal = 'Error Loading'
+          } else {
+          // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message)
+            this.loading = false
+            this.$q.notify({
+              color: 'warning',
+              position: 'top',
+              message: '' + error.request
+            })
+            this.loading = false
+            this.dispVal = 'Error Loading'
+          }
+          console.log(error.config)
+        })
+      this.loading = true
+      this.$axios({
+        method: 'get',
+        url: 'https://cadgroup2.jdrcomputers.co.uk/api/sessions/user/' + this.$store.state.data.userID,
+        timeout: this.timeout // 20 second timeout
+        // headers: { 'Access-Control-Allow-Origin': '*' }
+      })
+        .then((response) => {
+          this.sessionOptions = []
+          for (var i = 0; i < response.data.length; i++) {
+            this.sessionOptions.push({ label: response.data[i].speaker, value: response.data[i].sessionID, event: response.data[i].eventID })
+          }
+          this.loading = false
+          this.sessionDispVal = 'Select Event First'
+          console.log(this.sessionOptions)
         })
         .catch((error) => {
           if (error.response) {
@@ -255,9 +312,9 @@ export default {
               message: 'Error retreiving events: ' + error.response.status,
               icon: 'cloud'
             })
-            this.disableSelect = true
             this.loading = false
             this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
             // console.log(error.response.status);
             // console.log(error.response.headers)
           } else if (error.request) {
@@ -270,17 +327,11 @@ export default {
                 position: 'top',
                 message: 'Event retrieval timeout, are you online?' // + error.request
               })
-            } else {
-              this.$q.notify({
-                color: 'warning',
-                position: 'top',
-                message: 'Could not retrieve events, are you online?' // + error.request
-              })
             }
             console.log(error.request)
-            this.disableSelect = true
             this.loading = false
             this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
           } else {
             // Something happened in setting up the request that triggered an Error
             console.log('Error', error.message)
@@ -290,9 +341,9 @@ export default {
               position: 'top',
               message: '' + error.request
             })
-            this.disableSelect = true
             this.loading = false
             this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
           }
           console.log(error.config)
         })
@@ -308,21 +359,100 @@ export default {
         message: 'Joining session with speaker: ' + this.$store.state.data.session.label
       })
     },
-    refreshHandler (done) { // Identical to populateSelect but with the done function for pull to refresh
+    refreshHandler (done) { // Option to pop list after page load, for dev, depreceated in final version
+      this.loading = true
       this.eventOptions = [] // Clears the array before loading so new items aren't duplicated
+      this.dispVal = 'Loading...'
+      this.disableSelect = true
       this.$axios({
         method: 'get',
-        url: 'https://jsonplaceholder.typicode.com/comments',
-        timeout: this.timeout // 20 second timeout
+        url: 'https://cadgroup2.jdrcomputers.co.uk/api/events', // Will change to 'https://cadgroup2.jdrcomputers.co.uk/api/events' + this.$store.state.data.userID when properly configured
+        timeout: this.timeout
+        // headers: { 'Access-Control-Allow-Origin': '*' },
+        // contentType: 'application/x-www-form-urlencoded'
       })
         .then((response) => {
           for (var i = 0; i < response.data.length; i++) {
-            this.eventOptions.push({ label: response.data[i].name, value: response.data[i].name })
+            if (response.data[i].city != null) { // Shows only either city, street or postcode if they exist, ignores others (placeholder options)
+              this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
+            } else if (response.data[i].street != null) {
+              this.eventOptions.push({ label: response.data[i].street, value: response.data[i].eventID })
+            } else if (response.data[i].postcode != null) {
+              this.eventOptions.push({ label: response.data[i].postcode, value: response.data[i].eventID })
+            }
           }
+          this.disableSelect = false
+          this.dispVal = 'Event Selection'
           this.loading = false
-          done()
+          this.$store.commit('data/setAllEvents', this.eventOptions)
         })
         .catch((error) => {
+          done()
+          if (error.response) {
+            console.log(error.response.data)
+            this.$q.notify({
+              color: 'info',
+              position: 'top',
+              message: 'Error retreiving events: ' + error.response.status,
+              icon: 'cloud'
+            })
+            this.loading = false
+            this.dispVal = 'Error Loading'
+            console.log(error.response.status)
+            console.log(error.response.headers)
+          } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            if (error.code === 'ECONNABORTED') { // Ran if connection exceeds timeout limit
+              this.$q.notify({
+                color: 'warning',
+                position: 'top',
+                message: 'Event retrieval timeout, are you online?'
+              })
+            } else {
+              // this.$q.notify({
+              //   color: 'warning',
+              //   position: 'top',
+              //   message: 'Could not retrieve events, are you online?'
+              // })
+            }
+            console.log(error.request)
+            this.loading = false
+            this.dispVal = 'Error Loading'
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message)
+            this.loading = false
+            this.$q.notify({
+              color: 'warning',
+              position: 'top',
+              message: '' + error.request
+            })
+            this.loading = false
+            this.dispVal = 'Error Loading'
+          }
+          console.log(error.config)
+        })
+      this.loading = true
+      this.$axios({
+        method: 'get',
+        url: 'https://cadgroup2.jdrcomputers.co.uk/api/sessions/user/' + this.$store.state.data.userID,
+        timeout: this.timeout // 20 second timeout
+        // headers: { 'Access-Control-Allow-Origin': '*' }
+      })
+        .then((response) => {
+          this.sessionOptions = []
+          for (var i = 0; i < response.data.length; i++) {
+            this.sessionOptions.push({ label: response.data[i].speaker, value: response.data[i].sessionID, event: response.data[i].eventID })
+          }
+          this.loading = false
+          this.sessionDispVal = 'Select Event First'
+          done()
+          console.log(this.sessionOptions)
+        })
+        .catch((error) => {
+          done()
           if (error.response) {
             // console.log(error.response.data);
             this.$q.notify({
@@ -332,7 +462,8 @@ export default {
               icon: 'cloud'
             })
             this.loading = false
-            done()
+            this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
             // console.log(error.response.status);
             // console.log(error.response.headers)
           } else if (error.request) {
@@ -346,15 +477,16 @@ export default {
                 message: 'Event retrieval timeout, are you online?' // + error.request
               })
             } else {
-              this.$q.notify({
-                color: 'warning',
-                position: 'top',
-                message: 'Could not retrieve events, are you online?' // + error.request
-              })
+              // this.$q.notify({
+              //   color: 'warning',
+              //   position: 'top',
+              //   message: 'Could not retrieve events, are you online?'
+              // })
             }
             console.log(error.request)
             this.loading = false
-            done()
+            this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
           } else {
             // Something happened in setting up the request that triggered an Error
             console.log('Error', error.message)
@@ -365,7 +497,8 @@ export default {
               message: '' + error.request
             })
             this.loading = false
-            done()
+            this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
           }
           console.log(error.config)
         })
@@ -388,7 +521,19 @@ export default {
           this.sessSubset.push({ label: this.sessionOptions[i].label, value: this.sessionOptions[i].value })
         }
       }
-      this.disableSessSelect = false
+      if (this.sessSubset.length > 0) {
+        this.disableSessSelect = false
+      } else {
+        this.disableSessSelect = true
+        if (typeof this.noSessNotif === 'function') {
+          this.noSessNotif()
+        }
+        this.noSessNotif = this.$q.notify({
+          color: 'warning',
+          position: 'top',
+          message: 'No subscribed sessions in this event'
+        })
+      }
     }
   }
 }
