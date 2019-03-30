@@ -83,7 +83,7 @@ export default {
     // })
     this.$axios({
       method: 'get',
-      url: 'https://cadgroup2.jdrcomputers.co.uk/api/events', // Will change to 'https://cadgroup2.jdrcomputers.co.uk/api/events' + this.$store.state.data.userID when properly configured
+      url: 'https://cadgroup2.jdrcomputers.co.uk/api/events',
       timeout: this.timeout
     // headers: { 'Access-Control-Allow-Origin': '*' },
     // contentType: 'application/x-www-form-urlencoded'

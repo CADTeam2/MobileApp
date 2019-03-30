@@ -53,11 +53,83 @@ export default {
       maxInputHeight: 0.33 * window.innerHeight,
       maxQ: 250,
       warning: false,
-      disabled: false
+      disabled: false,
+      acceptingQuestions: false,
+      polling: null
     }
+  },
+  beforeDestory () {
+    clearInterval(this.polling)
+  },
+  created () {
+    this.pollData()
   },
   mounted: function () {
     console.log('Page Loaded') // Debug
+    console.log(this.$store.state.data.session.value)
+    this.polling = setInterval(() => {
+      this.$axios({
+        method: 'get',
+        url: 'https://cadgroup2.jdrcomputers.co.uk/api/sessions/' + this.$store.state.data.session.value,
+        timeout: this.timeout // 20 second timeout
+        // headers: { 'Access-Control-Allow-Origin': '*' }
+      })
+        .then((response) => {
+          if (response.data.acceptingQuestions === 1) {
+            this.acceptingQuestions = true
+            this.checkWarn()
+          } else {
+            this.acceptingQuestions = false
+            this.disabled = true
+          }
+        })
+        .catch((error) => {
+          this.acceptingQuestions = false
+          this.disabled = true
+          if (error.response) {
+            // console.log(error.response.data);
+            this.$q.notify({
+              color: 'info',
+              position: 'top',
+              message: 'Error retreiving events: ' + error.response.status,
+              icon: 'cloud'
+            })
+            this.loading = false
+            this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
+            // console.log(error.response.status);
+            // console.log(error.response.headers)
+          } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            if (error.code === 'ECONNABORTED') {
+              this.$q.notify({
+                color: 'warning',
+                position: 'top',
+                message: 'Event retrieval timeout, are you online?' // + error.request
+              })
+            }
+            console.log(error.request)
+            this.loading = false
+            this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message)
+            this.loading = false
+            this.$q.notify({
+              color: 'warning',
+              position: 'top',
+              message: '' + error.request
+            })
+            this.loading = false
+            this.dispVal = 'Error Loading'
+            this.sessionDispVal = 'Error Loading'
+          }
+          console.log(error.config)
+        })
+    }, 5000)
   },
   methods: {
     questionSubmit: function () { // Function called to submit the question with ajax post request
@@ -143,7 +215,10 @@ export default {
           })
         }
       } else {
-        this.$q.notify({ // Return error message if no question is entered
+        if (typeof this.noQuestion === 'function') {
+          this.noQuestion()
+        }
+        this.noQuestion = this.$q.notify({ // Return error message if no question is entered
           color: 'negative',
           position: 'bottom',
           message: 'Please enter a question to submit'
@@ -155,8 +230,10 @@ export default {
         this.warning = true
         this.disabled = true
       } else {
-        this.warning = false
-        this.disabled = false
+        if (this.acceptingQuestions) {
+          this.warning = false
+          this.disabled = false
+        }
       }
     },
     toRoom () { // Go back to session selection screen
