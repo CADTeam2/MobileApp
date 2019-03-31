@@ -30,10 +30,14 @@
         link
         inset-delimiter
       >
-        <q-list-header>Just One Link</q-list-header>
+        <q-list-header>Useful Links</q-list-header>
         <q-item @click.native="openURL('http://cadgroup2.jdrcomputers.co.uk')">
           <q-item-side icon="school" />
-          <q-item-main label="Main Site" sublabel="cadgroup2.jdrcomputers.co.uk" />
+          <q-item-main label="Moderator Site" sublabel="cadgroup2.jdrcomputers.co.uk" />
+        </q-item>
+        <q-item @click.native="openURL('https://loremipsum.io/')">
+          <q-item-side icon="school" />
+          <q-item-main label="User Guide" sublabel="loremipsum.io/" />
         </q-item>
       </q-list>
     </q-layout-drawer>
