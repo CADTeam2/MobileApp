@@ -97,17 +97,12 @@ export default {
             this.loading = false
             this.dispVal = 'Error Loading'
             this.sessionDispVal = 'Error Loading'
-            // console.log(error.response.status);
-            // console.log(error.response.headers)
           } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
             if (error.code === 'ECONNABORTED') {
               this.$q.notify({
                 color: 'warning',
                 position: 'top',
-                message: 'Event retrieval timeout, are you online?' // + error.request
+                message: 'Event retrieval timeout, are you online?'
               })
             }
             console.log(error.request)
@@ -115,7 +110,6 @@ export default {
             this.dispVal = 'Error Loading'
             this.sessionDispVal = 'Error Loading'
           } else {
-            // Something happened in setting up the request that triggered an Error
             console.log('Error', error.message)
             this.loading = false
             this.$q.notify({

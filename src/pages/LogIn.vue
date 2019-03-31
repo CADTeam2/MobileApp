@@ -33,23 +33,15 @@
 </style>
 
 <script>
-document.addEventListener('deviceready', () => {
+// document.addEventListener('deviceready', () => {
 
-}, false)
+// }, false) forDeletion
 export default {
   name: 'PageIndex',
   timeout: 20000,
   userExist: false,
   loading: false,
   methods: {
-    nextPage () {
-      this.$router.push('/RoomSelect')
-      this.$q.notify({ // Notification for simulated login
-        color: 'positive',
-        position: 'bottom',
-        message: 'Pseudo login successful'
-      })
-    },
     loginSubmit () {
       this.loading = true
       this.$axios({

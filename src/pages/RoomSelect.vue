@@ -1,7 +1,7 @@
 <template>
     <q-page padding class="docs-input flex flex-center column justify-center">
       <div style="width: 500px; max-width:90vw;"> <!-- Width of input never exceeds 500px -->
-        <!-- Selection for event (possibly redundant) -->
+        <!-- Selection for event -->
         <q-select
         v-model="eventSelect"
         :value="value"
@@ -19,18 +19,6 @@
         :float-label="sessionDispVal"
         :options="sessSubset"
         />
-        <!-- <q-field
-        :error="error"
-        :count="sessLength"
-        >
-          <q-input
-          v-model="sessID"
-          type="text"
-          @input="handleChange"
-          float-label="Enter Session ID"
-          :maxlength="sessLength"
-          />
-        </q-field> -->
       </div>
         <div>
           <!-- Button to grab new events from the server -->
@@ -76,17 +64,10 @@ export default {
     }
   },
   mounted: function () { // Populate select list on page load
-    // this.$q.notify({ // Temporary, for development
-    //   color: 'positive',
-    //   position: 'top',
-    //   message: 'Your user ID: ' + this.$store.state.data.userID
-    // })
     this.$axios({
       method: 'get',
       url: 'https://cadgroup2.jdrcomputers.co.uk/api/events',
       timeout: this.timeout
-    // headers: { 'Access-Control-Allow-Origin': '*' },
-    // contentType: 'application/x-www-form-urlencoded'
     })
       .then((response) => {
         for (var i = 0; i < response.data.length; i++) {
@@ -117,9 +98,6 @@ export default {
           console.log(error.response.status)
           console.log(error.response.headers)
         } else if (error.request) {
-        // The request was made but no response was received
-        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-        // http.ClientRequest in node.js
           if (error.code === 'ECONNABORTED') { // Ran if connection exceeds timeout limit
             this.$q.notify({
               color: 'warning',
@@ -155,7 +133,6 @@ export default {
       method: 'get',
       url: 'https://cadgroup2.jdrcomputers.co.uk/api/sessions/user/' + this.$store.state.data.userID,
       timeout: this.timeout // 20 second timeout
-      // headers: { 'Access-Control-Allow-Origin': '*' }
     })
       .then((response) => {
         this.sessionOptions = []
@@ -168,7 +145,6 @@ export default {
       })
       .catch((error) => {
         if (error.response) {
-          // console.log(error.response.data);
           this.$q.notify({
             color: 'info',
             position: 'top',
@@ -178,12 +154,7 @@ export default {
           this.loading = false
           this.dispVal = 'Error Loading'
           this.sessionDispVal = 'Error Loading'
-          // console.log(error.response.status);
-          // console.log(error.response.headers)
         } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
           if (error.code === 'ECONNABORTED') {
             this.$q.notify({
               color: 'warning',
@@ -226,10 +197,8 @@ export default {
       this.disableSelect = true
       this.$axios({
         method: 'get',
-        url: 'https://cadgroup2.jdrcomputers.co.uk/api/events', // Will change to 'https://cadgroup2.jdrcomputers.co.uk/api/events' + this.$store.state.data.userID when properly configured
+        url: 'https://cadgroup2.jdrcomputers.co.uk/api/events',
         timeout: this.timeout
-        // headers: { 'Access-Control-Allow-Origin': '*' },
-        // contentType: 'application/x-www-form-urlencoded'
       })
         .then((response) => {
           for (var i = 0; i < response.data.length; i++) {
@@ -260,9 +229,6 @@ export default {
             console.log(error.response.status)
             console.log(error.response.headers)
           } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
             if (error.code === 'ECONNABORTED') { // Ran if connection exceeds timeout limit
               this.$q.notify({
                 color: 'warning',
@@ -292,7 +258,6 @@ export default {
         method: 'get',
         url: 'https://cadgroup2.jdrcomputers.co.uk/api/sessions/user/' + this.$store.state.data.userID,
         timeout: this.timeout // 20 second timeout
-        // headers: { 'Access-Control-Allow-Origin': '*' }
       })
         .then((response) => {
           this.sessionOptions = []
@@ -305,7 +270,6 @@ export default {
         })
         .catch((error) => {
           if (error.response) {
-            // console.log(error.response.data);
             this.$q.notify({
               color: 'info',
               position: 'top',
@@ -315,12 +279,7 @@ export default {
             this.loading = false
             this.dispVal = 'Error Loading'
             this.sessionDispVal = 'Error Loading'
-            // console.log(error.response.status);
-            // console.log(error.response.headers)
           } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
             if (error.code === 'ECONNABORTED') {
               this.$q.notify({
                 color: 'warning',
@@ -359,150 +318,6 @@ export default {
         message: 'Joining session with speaker: ' + this.$store.state.data.session.label
       })
     },
-    refreshHandler (done) { // Option to pop list after page load, for dev, depreceated in final version
-      this.loading = true
-      this.eventOptions = [] // Clears the array before loading so new items aren't duplicated
-      this.dispVal = 'Loading...'
-      this.disableSelect = true
-      this.$axios({
-        method: 'get',
-        url: 'https://cadgroup2.jdrcomputers.co.uk/api/events', // Will change to 'https://cadgroup2.jdrcomputers.co.uk/api/events' + this.$store.state.data.userID when properly configured
-        timeout: this.timeout
-        // headers: { 'Access-Control-Allow-Origin': '*' },
-        // contentType: 'application/x-www-form-urlencoded'
-      })
-        .then((response) => {
-          for (var i = 0; i < response.data.length; i++) {
-            if (response.data[i].city != null) { // Shows only either city, street or postcode if they exist, ignores others (placeholder options)
-              this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
-            } else if (response.data[i].street != null) {
-              this.eventOptions.push({ label: response.data[i].street, value: response.data[i].eventID })
-            } else if (response.data[i].postcode != null) {
-              this.eventOptions.push({ label: response.data[i].postcode, value: response.data[i].eventID })
-            }
-          }
-          this.disableSelect = false
-          this.dispVal = 'Event Selection'
-          this.loading = false
-          this.$store.commit('data/setAllEvents', this.eventOptions)
-        })
-        .catch((error) => {
-          done()
-          if (error.response) {
-            console.log(error.response.data)
-            this.$q.notify({
-              color: 'info',
-              position: 'top',
-              message: 'Error retreiving events: ' + error.response.status,
-              icon: 'cloud'
-            })
-            this.loading = false
-            this.dispVal = 'Error Loading'
-            console.log(error.response.status)
-            console.log(error.response.headers)
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            if (error.code === 'ECONNABORTED') { // Ran if connection exceeds timeout limit
-              this.$q.notify({
-                color: 'warning',
-                position: 'top',
-                message: 'Event retrieval timeout, are you online?'
-              })
-            } else {
-              // this.$q.notify({
-              //   color: 'warning',
-              //   position: 'top',
-              //   message: 'Could not retrieve events, are you online?'
-              // })
-            }
-            console.log(error.request)
-            this.loading = false
-            this.dispVal = 'Error Loading'
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log('Error', error.message)
-            this.loading = false
-            this.$q.notify({
-              color: 'warning',
-              position: 'top',
-              message: '' + error.request
-            })
-            this.loading = false
-            this.dispVal = 'Error Loading'
-          }
-          console.log(error.config)
-        })
-      this.loading = true
-      this.$axios({
-        method: 'get',
-        url: 'https://cadgroup2.jdrcomputers.co.uk/api/sessions/user/' + this.$store.state.data.userID,
-        timeout: this.timeout // 20 second timeout
-        // headers: { 'Access-Control-Allow-Origin': '*' }
-      })
-        .then((response) => {
-          this.sessionOptions = []
-          for (var i = 0; i < response.data.length; i++) {
-            this.sessionOptions.push({ label: response.data[i].speaker, value: response.data[i].sessionID, event: response.data[i].eventID })
-          }
-          this.loading = false
-          this.sessionDispVal = 'Select Event First'
-          done()
-          console.log(this.sessionOptions)
-        })
-        .catch((error) => {
-          done()
-          if (error.response) {
-            // console.log(error.response.data);
-            this.$q.notify({
-              color: 'info',
-              position: 'top',
-              message: 'Error retreiving events: ' + error.response.status,
-              icon: 'cloud'
-            })
-            this.loading = false
-            this.dispVal = 'Error Loading'
-            this.sessionDispVal = 'Error Loading'
-            // console.log(error.response.status);
-            // console.log(error.response.headers)
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            if (error.code === 'ECONNABORTED') {
-              this.$q.notify({
-                color: 'warning',
-                position: 'top',
-                message: 'Event retrieval timeout, are you online?' // + error.request
-              })
-            } else {
-              // this.$q.notify({
-              //   color: 'warning',
-              //   position: 'top',
-              //   message: 'Could not retrieve events, are you online?'
-              // })
-            }
-            console.log(error.request)
-            this.loading = false
-            this.dispVal = 'Error Loading'
-            this.sessionDispVal = 'Error Loading'
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log('Error', error.message)
-            this.loading = false
-            this.$q.notify({
-              color: 'warning',
-              position: 'top',
-              message: '' + error.request
-            })
-            this.loading = false
-            this.dispVal = 'Error Loading'
-            this.sessionDispVal = 'Error Loading'
-          }
-          console.log(error.config)
-        })
-    },
     handleChange () { // Enables join room button on session select
       this.disabled = false
       this.sessionOptions.forEach(element => { // To output speaker name rather than session ID
@@ -538,6 +353,3 @@ export default {
   }
 }
 </script>
-
-<style>
-</style>
