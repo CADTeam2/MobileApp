@@ -21,14 +21,6 @@
           <q-btn
             style="margin-top: 20px;"
             icon="lock_open"
-            label="Next page"
-            @click="nextPage()"
-            />
-        </div>
-        <div>
-          <q-btn
-            style="margin-top: 20px;"
-            icon="lock_open"
             label="Login"
             @click="loginSubmit()"
             :loading="loading"

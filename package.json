@@ -1,13 +1,13 @@
 {
   "name": "cadteam2app",
   "version": "0.0.1",
-  "description": "A Quasar Framework app",
-  "productName": "CAD Team 2 Test App",
-  "cordovaId": "com.cadteam2.testapp",
+  "description": "Question submission application",
+  "productName": "Questions For a Speaker",
+  "cordovaId": "com.cadteam2.questions",
   "author": "Lewis Evans <lewis_evans@me.com>",
   "private": true,
   "scripts": {
-    "dev": "quasar dev",
+    "dev": "Lewis Evans",
     "lint": "eslint --ext .js,.vue src",
     "test": "echo \"No test specified\" && exit 0"
   },
