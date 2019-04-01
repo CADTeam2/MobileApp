@@ -1,11 +1,12 @@
 <template>
   <q-page padding class="docs-input flex flex-center column justify-center">
     <div style="width: 500px; max-width:90vw;"> <!-- Width of input never exceeds 500px -->
-      <!--<p id="rmID">Conference (room) name: {{ this.$route.params.roomName }}</p>-->
+      <!-- To set maximum input length -->
       <q-field
       :count="maxQ"
       :warning="warning"
       >
+        <!-- Puestion input field -->
         <q-input
           clearable
           v-model="question"
@@ -19,6 +20,7 @@
       </q-field>
     </div>
     <div>
+      <!-- Submit question button to run questionSubmit-->
       <q-btn
         style="margin-top: 20px;"
         :icon-right="iconStyle"
@@ -29,6 +31,7 @@
         />
     </div>
     <div>
+      <!-- Button to run toRoom function to rewrite DOM -->
       <q-btn
         style="margin-top: 20px;"
         label="Change Room"
@@ -45,7 +48,7 @@
 export default {
   name: 'PageIndex',
   data () {
-    return { // Value defaults to allow field refresh
+    return { // Initiate local variables
       question: '',
       loading: false,
       timeout: 20000,
@@ -60,23 +63,23 @@ export default {
       iconStyle: 'send'
     }
   },
-  beforeDestroy: function () {
+  beforeDestroy: function () { // Verify the polling is ended before the page is closed
     clearInterval(this.polling)
   },
   mounted: function () {
-    this.polling = setInterval(() => {
+    this.polling = setInterval(() => { // Check status of the session every 5 seconds
       this.$axios({
         method: 'get',
         url: 'https://cadgroup2.jdrcomputers.co.uk/api/sessions/' + this.$store.state.data.session.value,
         timeout: this.timeout // 20 second timeout
       })
         .then((response) => {
-          if (response.data.acceptingQuestions === 1) {
+          if (response.data.acceptingQuestions === 1) { // When accepting questions
             this.acceptingQuestions = true
             this.checkWarn()
             this.sendVal = 'Submit Question'
             this.iconStyle = 'send'
-          } else {
+          } else { // When not accepting questions
             this.acceptingQuestions = false
             this.disabled = true
             this.sendVal = 'Session not Accpeting Questions'
@@ -84,45 +87,19 @@ export default {
           }
         })
         .catch((error) => {
-          this.sendVal = 'Trouble Contacting Server'
+          this.sendVal = 'Trouble Contacting Server' // Chnages button text
           this.iconStyle = 'error'
           this.acceptingQuestions = false
           this.disabled = true
-          if (error.response) {
+          if (error.response) { // Catching errors
             console.log(error.response.data)
-            // this.$q.notify({
-            //   color: 'info',
-            //   position: 'top',
-            //   message: 'Error retreiving events: ' + error.response.status,
-            //   icon: 'cloud'
-            // })
-            // this.loading = false
-            // this.dispVal = 'Error Loading'
-            // this.sessionDispVal = 'Error Loading'
           } else if (error.request) {
             if (error.code === 'ECONNABORTED') {
-              // this.$q.notify({
-              //   color: 'warning',
-              //   position: 'top',
-              //   message: 'Event retrieval timeout, are you online?'
-              // })
               console.log('Timeout')
             }
             console.log(error.request)
-            // this.loading = false
-            // this.dispVal = 'Error Loading'
-            // this.sessionDispVal = 'Error Loading'
           } else {
             console.log('Error', error.message)
-            // this.loading = false
-            // this.$q.notify({
-            //   color: 'warning',
-            //   position: 'top',
-            //   message: '' + error.request
-            // })
-            // this.loading = false
-            // this.dispVal = 'Error Loading'
-            // this.sessionDispVal = 'Error Loading'
           }
           console.log(error.config)
         })
@@ -134,7 +111,7 @@ export default {
         if (this.question.length <= this.maxQ) {
           this.loading = true
           console.log(this.question)
-          this.$axios({
+          this.$axios({ // Construction of API request
             method: 'post',
             url: this.apiAddress,
             data: {
@@ -163,13 +140,7 @@ export default {
                   icon: 'cloud'
                 })
                 this.loading = false
-                this.dispVal = 'Error Loading'
-                // console.log(error.response.status);
-                // console.log(error.response.headers)
               } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                // http.ClientRequest in node.js
                 if (error.code === 'ECONNABORTED') { // Ran if connection exceeds timeout limit
                   if (typeof this.noTimeNotif === 'function') {
                     this.noTimeNotif()
@@ -228,7 +199,7 @@ export default {
         })
       }
     },
-    checkWarn () {
+    checkWarn () { // Function to verify the input length is under maxQ, does not allow sending if over maxQ
       if (this.question.length > this.maxQ) {
         this.warning = true
         this.disabled = true

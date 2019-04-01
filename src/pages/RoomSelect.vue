@@ -71,13 +71,6 @@ export default {
       .then((response) => {
         for (var i = 0; i < response.data.length; i++) {
           this.eventOptions.push({ label: response.data[i].eventName, value: response.data[i].eventID })
-          // if (response.data[i].city != null) { // Shows only either city, street or postcode if they exist, ignores others (placeholder options)
-          //   this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
-          // } else if (response.data[i].street != null) {
-          //   this.eventOptions.push({ label: response.data[i].street, value: response.data[i].eventID })
-          // } else if (response.data[i].postcode != null) {
-          //   this.eventOptions.push({ label: response.data[i].postcode, value: response.data[i].eventID })
-          // }
         }
         this.disableSelect = false
         this.dispVal = 'Event Selection'
@@ -162,11 +155,6 @@ export default {
               message: 'Event retrieval timeout, are you online?' // + error.request
             })
           } else {
-            // this.$q.notify({
-            //   color: 'warning',
-            //   position: 'top',
-            //   message: 'Could not retrieve events, are you online?'
-            // })
           }
           console.log(error.request)
           this.loading = false
@@ -203,13 +191,6 @@ export default {
         .then((response) => {
           for (var i = 0; i < response.data.length; i++) {
             this.eventOptions.push({ label: response.data[i].eventName, value: response.data[i].eventID })
-            // if (response.data[i].city != null) { // Shows only either city, street or postcode if they exist, ignores others (placeholder options)
-            //   this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
-            // } else if (response.data[i].street != null) {
-            //   this.eventOptions.push({ label: response.data[i].street, value: response.data[i].eventID })
-            // } else if (response.data[i].postcode != null) {
-            //   this.eventOptions.push({ label: response.data[i].postcode, value: response.data[i].eventID })
-            // }
           }
           this.disableSelect = false
           this.dispVal = 'Event Selection'
@@ -323,7 +304,7 @@ export default {
         }
       })
     },
-    handleEventSelect () {
+    handleEventSelect () { // For when an event is selected, populates session list with all sessions in that event which the user is subscribed to
       this.sessSubset = []
       console.log(this.eventSelect)
       console.log(this.sessionOptions[0].eventID)
