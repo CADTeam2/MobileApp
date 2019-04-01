@@ -21,8 +21,8 @@
     <div>
       <q-btn
         style="margin-top: 20px;"
-        icon-right="send"
-        label="Send Question!"
+        :icon-right="iconStyle"
+        :label="sendVal"
         :loading="loading"
         :disabled="disabled"
         @click="questionSubmit()"
@@ -55,71 +55,74 @@ export default {
       warning: false,
       disabled: false,
       acceptingQuestions: false,
-      polling: null
+      polling: null,
+      sendVal: 'Submit Question',
+      iconStyle: 'send'
     }
   },
-  beforeDestory () {
+  beforeDestroy: function () {
     clearInterval(this.polling)
   },
-  created () {
-    this.pollData()
-  },
   mounted: function () {
-    console.log('Page Loaded') // Debug
-    console.log(this.$store.state.data.session.value)
     this.polling = setInterval(() => {
       this.$axios({
         method: 'get',
         url: 'https://cadgroup2.jdrcomputers.co.uk/api/sessions/' + this.$store.state.data.session.value,
         timeout: this.timeout // 20 second timeout
-        // headers: { 'Access-Control-Allow-Origin': '*' }
       })
         .then((response) => {
           if (response.data.acceptingQuestions === 1) {
             this.acceptingQuestions = true
             this.checkWarn()
+            this.sendVal = 'Submit Question'
+            this.iconStyle = 'send'
           } else {
             this.acceptingQuestions = false
             this.disabled = true
+            this.sendVal = 'Session not Accpeting Questions'
+            this.iconStyle = ''
           }
         })
         .catch((error) => {
+          this.sendVal = 'Trouble Contacting Server'
+          this.iconStyle = 'error'
           this.acceptingQuestions = false
           this.disabled = true
           if (error.response) {
-            // console.log(error.response.data);
-            this.$q.notify({
-              color: 'info',
-              position: 'top',
-              message: 'Error retreiving events: ' + error.response.status,
-              icon: 'cloud'
-            })
-            this.loading = false
-            this.dispVal = 'Error Loading'
-            this.sessionDispVal = 'Error Loading'
+            console.log(error.response.data)
+            // this.$q.notify({
+            //   color: 'info',
+            //   position: 'top',
+            //   message: 'Error retreiving events: ' + error.response.status,
+            //   icon: 'cloud'
+            // })
+            // this.loading = false
+            // this.dispVal = 'Error Loading'
+            // this.sessionDispVal = 'Error Loading'
           } else if (error.request) {
             if (error.code === 'ECONNABORTED') {
-              this.$q.notify({
-                color: 'warning',
-                position: 'top',
-                message: 'Event retrieval timeout, are you online?'
-              })
+              // this.$q.notify({
+              //   color: 'warning',
+              //   position: 'top',
+              //   message: 'Event retrieval timeout, are you online?'
+              // })
+              console.log('Timeout')
             }
             console.log(error.request)
-            this.loading = false
-            this.dispVal = 'Error Loading'
-            this.sessionDispVal = 'Error Loading'
+            // this.loading = false
+            // this.dispVal = 'Error Loading'
+            // this.sessionDispVal = 'Error Loading'
           } else {
             console.log('Error', error.message)
-            this.loading = false
-            this.$q.notify({
-              color: 'warning',
-              position: 'top',
-              message: '' + error.request
-            })
-            this.loading = false
-            this.dispVal = 'Error Loading'
-            this.sessionDispVal = 'Error Loading'
+            // this.loading = false
+            // this.$q.notify({
+            //   color: 'warning',
+            //   position: 'top',
+            //   message: '' + error.request
+            // })
+            // this.loading = false
+            // this.dispVal = 'Error Loading'
+            // this.sessionDispVal = 'Error Loading'
           }
           console.log(error.config)
         })
@@ -144,10 +147,10 @@ export default {
             .then((response) => {
               this.loading = false
               this.question = ''
-              this.$q.notify({
+              this.$q.notify({ // Informs user of successful submission
                 color: 'positive',
                 position: 'bottom',
-                message: 'Submission ' + response.data.question + ' recieved' // Displays question for testing beofre api is ready
+                message: 'Submission successful'
               })
             })
             .catch((error) => {
@@ -168,13 +171,19 @@ export default {
                 // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
                 // http.ClientRequest in node.js
                 if (error.code === 'ECONNABORTED') { // Ran if connection exceeds timeout limit
-                  this.$q.notify({
+                  if (typeof this.noTimeNotif === 'function') {
+                    this.noTimeNotif()
+                  }
+                  this.noTimeNotif = this.$q.notify({
                     color: 'warning',
                     position: 'top',
                     message: 'Question submission failed, are you online?'
                   })
                 } else {
-                  this.$q.notify({
+                  if (typeof this.noConnNotif === 'function') {
+                    this.noConnNotif()
+                  }
+                  this.noConnNotif = this.$q.notify({
                     color: 'warning',
                     position: 'top',
                     message: 'Could not submit question, are you online?'
