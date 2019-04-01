@@ -16,7 +16,7 @@
         </q-btn>
 
         <q-toolbar-title>
-          {{ this.$store.state.data.session.label }}
+          {{ this.$store.state.data.session.name }}
         </q-toolbar-title>
       </q-toolbar>
     </q-layout-header>
