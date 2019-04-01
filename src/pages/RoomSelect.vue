@@ -56,7 +56,6 @@ export default {
       sessionDispVal: 'Loading...',
       sessID: '',
       sessLength: 5, // Maximum length for the room code, likely unnecessary in the future
-      error: false,
       selectSessID: null,
       disableSessSelect: true,
       sessLabel: '',
@@ -71,13 +70,14 @@ export default {
     })
       .then((response) => {
         for (var i = 0; i < response.data.length; i++) {
-          if (response.data[i].city != null) { // Shows only either city, street or postcode if they exist, ignores others (placeholder options)
-            this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
-          } else if (response.data[i].street != null) {
-            this.eventOptions.push({ label: response.data[i].street, value: response.data[i].eventID })
-          } else if (response.data[i].postcode != null) {
-            this.eventOptions.push({ label: response.data[i].postcode, value: response.data[i].eventID })
-          }
+          this.eventOptions.push({ label: response.data[i].eventName, value: response.data[i].eventID })
+          // if (response.data[i].city != null) { // Shows only either city, street or postcode if they exist, ignores others (placeholder options)
+          //   this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
+          // } else if (response.data[i].street != null) {
+          //   this.eventOptions.push({ label: response.data[i].street, value: response.data[i].eventID })
+          // } else if (response.data[i].postcode != null) {
+          //   this.eventOptions.push({ label: response.data[i].postcode, value: response.data[i].eventID })
+          // }
         }
         this.disableSelect = false
         this.dispVal = 'Event Selection'
@@ -137,7 +137,7 @@ export default {
       .then((response) => {
         this.sessionOptions = []
         for (var i = 0; i < response.data.length; i++) {
-          this.sessionOptions.push({ label: response.data[i].speaker, value: response.data[i].sessionID, event: response.data[i].eventID })
+          this.sessionOptions.push({ label: response.data[i].speaker, value: response.data[i].sessionID, event: response.data[i].eventID, name: response.data[i].sessionName })
         }
         this.loading = false
         this.sessionDispVal = 'Select Event First'
@@ -202,13 +202,14 @@ export default {
       })
         .then((response) => {
           for (var i = 0; i < response.data.length; i++) {
-            if (response.data[i].city != null) { // Shows only either city, street or postcode if they exist, ignores others (placeholder options)
-              this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
-            } else if (response.data[i].street != null) {
-              this.eventOptions.push({ label: response.data[i].street, value: response.data[i].eventID })
-            } else if (response.data[i].postcode != null) {
-              this.eventOptions.push({ label: response.data[i].postcode, value: response.data[i].eventID })
-            }
+            this.eventOptions.push({ label: response.data[i].eventName, value: response.data[i].eventID })
+            // if (response.data[i].city != null) { // Shows only either city, street or postcode if they exist, ignores others (placeholder options)
+            //   this.eventOptions.push({ label: response.data[i].city, value: response.data[i].eventID })
+            // } else if (response.data[i].street != null) {
+            //   this.eventOptions.push({ label: response.data[i].street, value: response.data[i].eventID })
+            // } else if (response.data[i].postcode != null) {
+            //   this.eventOptions.push({ label: response.data[i].postcode, value: response.data[i].eventID })
+            // }
           }
           this.disableSelect = false
           this.dispVal = 'Event Selection'
@@ -262,7 +263,7 @@ export default {
         .then((response) => {
           this.sessionOptions = []
           for (var i = 0; i < response.data.length; i++) {
-            this.sessionOptions.push({ label: response.data[i].speaker, value: response.data[i].sessionID, event: response.data[i].eventID })
+            this.sessionOptions.push({ label: response.data[i].speaker, value: response.data[i].sessionID, event: response.data[i].eventID, name: response.data[i].sessionName })
           }
           this.loading = false
           this.sessionDispVal = 'Select Event First'
@@ -312,15 +313,10 @@ export default {
       if (typeof this.sessionJoinNotif === 'function') {
         this.sessionJoinNotif()
       }
-      this.sessionJoinNotif = this.$q.notify({
-        color: 'primary',
-        position: 'bottom',
-        message: 'Joining session with speaker: ' + this.$store.state.data.session.label
-      })
     },
     handleChange () { // Enables join room button on session select
       this.disabled = false
-      this.sessionOptions.forEach(element => { // To output speaker name rather than session ID
+      this.sessionOptions.forEach(element => { // To output speaker/session name rather than session ID
         if (element.value === this.sessID) {
           this.sessLabel = element.label
           this.$store.commit('data/setSession', element)
