@@ -1,4 +1,6 @@
 export default {
   session: [],
-  userID: ''
+  userID: '',
+  allEvents: [],
+  allSessions: []
 }

@@ -16,7 +16,7 @@
         </q-btn>
 
         <q-toolbar-title>
-          {{ this.$store.state.data.session.label }}
+          {{ this.$store.state.data.session.name }}
         </q-toolbar-title>
       </q-toolbar>
     </q-layout-header>
@@ -32,8 +32,12 @@
       >
         <q-list-header>Useful Links</q-list-header>
         <q-item @click.native="openURL('http://cadgroup2.jdrcomputers.co.uk')">
-          <q-item-side icon="cloud" />
-          <q-item-main label="Main Site" sublabel="cadgroup2.jdrcomputers.co.uk" />
+          <q-item-side icon="school" />
+          <q-item-main label="Moderator Site" sublabel="cadgroup2.jdrcomputers.co.uk" />
+        </q-item>
+        <q-item @click.native="openURL('https://loremipsum.io/')">
+          <q-item-side icon="school" />
+          <q-item-main label="User Guide" sublabel="loremipsum.io/" />
         </q-item>
         <q-item @click.native="prevPage()"> <!-- Log out sidebar option only visible from questions page which needs login to view -->
           <q-item-side icon="lock" />

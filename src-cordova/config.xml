@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.cadteam2.testapp" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.cadteam2.questions" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>CAD Team 2 Test App</name>
-    <description>A Quasar Framework app</description>
+    <description>Question submission application</description>
     <author email="dev@cordova.apache.org" href="http://cordova.io">
         Apache Cordova Team
     </author>
@@ -24,10 +24,10 @@
         <preference name="KeyboardShrinksView" value="true" />
     </platform>
     <plugin name="cordova-plugin-keyboard" spec="^1.2.0" />
-    <engine name="android" spec="^7.1.4" />
-    <engine name="ios" spec="latest" />
     <feature name="CDVWKWebViewEngine">
         <param name="ios-package" value="CDVWKWebViewEngine" />
     </feature>
     <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
+    <engine name="android" spec="^7.1.4" />
+    <engine name="ios" spec="^5.0.0" />
 </widget>
